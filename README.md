@@ -8,3 +8,11 @@
 - [Плейлист с видео по созданию telegram-бота](https://www.youtube.com/watch?v=5_BnZQENB2g&list=PLD-piGJ3Dtl3zlRzM4kyWgjHAZv_HDvHH)
 - [Видео. Боты в telegram. Зачем они нужны?](https://www.youtube.com/watch?v=_HLbYEEUCtk&t=903s)
 
+## Опросники по javascript
+- [https://www.javatpoint.com/javascript-quiz](https://www.javatpoint.com/javascript-quiz)
+- [http://davidshariff.com/js-quiz/](http://davidshariff.com/js-quiz/)
+- [https://learn.javascript.ru/quiz](https://learn.javascript.ru/quiz)
+- [http://perfectionkills.com/javascript-quiz/](http://perfectionkills.com/javascript-quiz/)
+- [https://www.w3schools.com/quiztest/quiztest.asp?qtest=JavaScript](https://www.w3schools.com/quiztest/quiztest.asp?qtest=JavaScript)
+
+
