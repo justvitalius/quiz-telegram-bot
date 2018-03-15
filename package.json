@@ -1,0 +1,26 @@
+{
+  "name": "quiz-telegram-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/justVitalius/quiz-telegram-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/justVitalius/quiz-telegram-bot/issues"
+  },
+  "homepage": "https://github.com/justVitalius/quiz-telegram-bot#readme",
+  "dependencies": {
+    "jasmine": "^3.1.0"
+  }
+}
