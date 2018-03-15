@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/justVitalius/quiz-telegram-bot.svg?branch=master)](https://travis-ci.org/justVitalius/quiz-telegram-bot)
 # Quiz Telegram Bot
 
 ## Диаграмма 
