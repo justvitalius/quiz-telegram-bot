@@ -28,3 +28,15 @@
 - [https://learn.javascript.ru/quiz](https://learn.javascript.ru/quiz)
 - [http://perfectionkills.com/javascript-quiz/](http://perfectionkills.com/javascript-quiz/)
 - [https://www.w3schools.com/quiztest/quiztest.asp?qtest=JavaScript](https://www.w3schools.com/quiztest/quiztest.asp?qtest=JavaScript)
+
+про геймификацию
+- никаких шуток в боте.
+- стараемся делать вопросы с ответами в виде кнопок, радиобатонов, чекбоксов.
+- Ваня и Глеб против периодичности сообщений. Ответ на вопрос генерирует новый вопрос.
+
+подарки
+- сертификаты на развлечение и обучение
+
+как работаем до ПН
+- каждый пробует все куски, чтобы понять на чем хочется сфокусироваться.
+
