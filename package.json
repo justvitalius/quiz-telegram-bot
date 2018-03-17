@@ -7,7 +7,8 @@
     "doc": "docs"
   },
   "scripts": {
-    "test": "jasmine"
+    "test": "jasmine",
+    "precommit": "pretty-quick --staged"
   },
   "repository": {
     "type": "git",
@@ -22,5 +23,10 @@
   "homepage": "https://github.com/justVitalius/quiz-telegram-bot#readme",
   "dependencies": {
     "jasmine": "^3.1.0"
+  },
+  "devDependencies": {
+    "husky": "^0.14.3",
+    "prettier": "1.11.1",
+    "pretty-quick": "^1.4.1"
   }
 }
