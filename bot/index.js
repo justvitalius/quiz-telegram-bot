@@ -1,17 +1,12 @@
 const TelegramBot = require("node-telegram-bot-api");
 const TOKEN = "437490297:AAG4HUywKyNBtEsqKVv6tMmGbRsNeDFsSSo";
 
-// const bot = new TelegramBot(TOKEN, { polling: true });
+console.log(process.env);
 
-const port = process.env.PORT || 443;
-const host = process.env.HOST || "0.0.0.0";
-const externalUrl =
-  process.env.CUSTOM_ENV_VARIABLE ||
-  "https://sheltered-brook-50261.herokuapp.com";
-const bot = new TelegramBot(process.env.TOKEN, {
-  webHook: { port: port, host: host }
-});
-bot.setWebHook(externalUrl + ":443/bot" + TOKEN);
+const bot = new TelegramBot(TOKEN, { polling: true });
+
+const http = require("http");
+http.createServer((req, res) => res.end("ok")).listen(process.env.PORT || 5000);
 
 const questionnaires = require("../questionaries");
 const getQuestion = require("../quizer");
