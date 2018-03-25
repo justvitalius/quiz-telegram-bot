@@ -1,5 +1,5 @@
 const TelegramBot = require("node-telegram-bot-api");
-const TOKEN = "437490297:AAG4HUywKyNBtEsqKVv6tMmGbRsNeDFsSSo";
+const TOKEN = "588143760:AAEjsGv8eirVN2CAmnBRQtIKsqrycWQCwXw";
 
 console.log(process.env);
 
