@@ -14,23 +14,14 @@ function save(entity, callback) {
   }
 }
 
-function readAll(entity, searchCriteria = {}, callback) {
+function readAll(entity, searchCriteria = {}) {
   if (entity) {
-    entity
-      .find(searchCriteria)
-      .exec()
-      .then(results => {
-        console.log("Search results: ");
-        console.log(results);
-        if (callback) {
-          callback(results);
-        }
-      })
-      .catch(err => console.log(err));
+    return entity.find(searchCriteria).exec();
   } else {
     console.log(
       "Can't read entities from database. I don't know what type of empty to read"
     );
+    return new Promise();
   }
 }
 

@@ -18,9 +18,9 @@ connect();
 
 const userProfiles = new Map();
 
-const userProfile = {
+/*const userProfile = {
   answers: []
-};
+};*/
 
 bot.onText(/\/clear/, msg => {
   //TODO брать из БД
@@ -90,26 +90,33 @@ setInterval(() => {
   Array.from(userProfiles.values())
     .filter(user => ["wait-question", "new"].includes(user.status))
     .forEach(user => {
-      getAllQuestionnaires(function(results) {
-        console.log("From DB: " + results);
-        const questionnaire = getQuestion(results, [0], 2, userProfile);
-        if (!questionnaire) {
+      getAllQuestionnaires()
+        .then(results => {
+          const questionnaire = getQuestion(results, [0], 2, userProfile);
+          if (!questionnaire) {
+            user.status = "end";
+            bot.sendMessage(
+              user.id,
+              "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
+            );
+          }
+          setNextStatus(user);
+          user.answers = user.answers.concat(questionnaire);
+          bot.sendMessage(
+            user.id,
+            renderQuestion({
+              question: questionnaire.question,
+              options: questionnaire.options
+            }),
+            { parse_mode: "HTML" }
+          );
+        })
+        .catch(err => {
           user.status = "end";
           bot.sendMessage(
             user.id,
-            "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
+            "Невозможно получить вопрос из базы данных. Пожалуйста, попробуйте позже"
           );
-        }
-        setNextStatus(user);
-        user.answers = user.answers.concat(questionnaire);
-        bot.sendMessage(
-          user.id,
-          renderQuestion({
-            question: questionnaire.question,
-            options: questionnaire.options
-          }),
-          { parse_mode: "HTML" }
-        );
-      });
+        });
     });
 }, 2000);

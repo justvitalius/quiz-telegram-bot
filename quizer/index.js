@@ -7,7 +7,9 @@ module.exports = getQuestion = (
   questionnaires = [],
   typeOrder = [],
   maxCountByType = 0,
-  userProfile = {}
+  userProfile = {
+    answers: []
+  }
 ) => {
   const answers = userProfile.answers;
   const answersCount = answers.length;
