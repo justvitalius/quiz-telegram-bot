@@ -8,11 +8,13 @@ const bot = new TelegramBot(TOKEN, { polling: true });
 const http = require("http");
 http.createServer((req, res) => res.end("ok")).listen(process.env.PORT || 5000);
 
-const questionnaires = require("../questionaries");
 const getQuestion = require("../quizer");
 const compareAnswer = require("../compare-answer");
 const { generateUser, setNextStatus } = require("../user");
 const { renderQuestion } = require("./message");
+const { connect, getAllQuestionnaires } = require("../database");
+
+connect();
 
 const userProfiles = new Map();
 
@@ -21,6 +23,7 @@ const userProfile = {
 };
 
 bot.onText(/\/clear/, msg => {
+  //TODO брать из БД
   userProfiles.delete(msg.from.id);
 
   bot.sendMessage(
@@ -36,6 +39,7 @@ bot.onText(/\/start/, msg => {
     username: msg.from.username
   });
 
+  //TODO брать из БД
   userProfiles.set(userProfile.id, userProfile);
 
   bot.sendMessage(
@@ -49,6 +53,7 @@ bot.onText(/\/start/, msg => {
 });
 
 bot.onText(/\d+/, msg => {
+  //TODO брать из БД
   const userProfile = userProfiles.get(msg.from.id);
   if (!userProfile) {
     bot.sendMessage(
@@ -81,32 +86,30 @@ bot.onText(/\d+/, msg => {
 });
 
 setInterval(() => {
+  //TODO брать из БД
   Array.from(userProfiles.values())
     .filter(user => ["wait-question", "new"].includes(user.status))
     .forEach(user => {
-      const questionnaire = getQuestion(questionnaires, [0], 2, userProfile);
-      if (!questionnaire) {
-        user.status = "end";
+      getAllQuestionnaires(function(results) {
+        console.log("From DB: " + results);
+        const questionnaire = getQuestion(results, [0], 2, userProfile);
+        if (!questionnaire) {
+          user.status = "end";
+          bot.sendMessage(
+            user.id,
+            "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
+          );
+        }
+        setNextStatus(user);
+        user.answers = user.answers.concat(questionnaire);
         bot.sendMessage(
           user.id,
-          "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
+          renderQuestion({
+            question: questionnaire.question,
+            options: questionnaire.options
+          }),
+          { parse_mode: "HTML" }
         );
-      }
-      setNextStatus(user);
-      user.answers = user.answers.concat(questionnaire);
-      console.log(
-        renderQuestion({
-          question: questionnaire.question,
-          options: questionnaire.options
-        })
-      );
-      bot.sendMessage(
-        user.id,
-        renderQuestion({
-          question: questionnaire.question,
-          options: questionnaire.options
-        }),
-        { parse_mode: "HTML" }
-      );
+      });
     });
 }, 2000);
