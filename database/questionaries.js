@@ -1,5 +1,6 @@
 module.exports = [
   {
+    id: 1,
     question: "Каких операторов из этого списка нет в javascript?",
     type: 0,
     options: ["*", "^", "%", "#", "&", ">>", ">>>", "!"],
@@ -9,6 +10,7 @@ module.exports = [
     }
   },
   {
+    id: 2,
     question: `
 Что выведет этот код?
 let a = (1,5 - 1) * 2;
@@ -22,6 +24,7 @@ alert(a);
     }
   },
   {
+    id: 3,
     question: "Чему равна сумма [] + 1 + 2?",
     type: 0,
     options: ["1", "NaN", "undefined", "12", "Другое"],

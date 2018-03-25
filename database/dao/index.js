@@ -1,20 +1,13 @@
-function save(entity, callback) {
+function save(entity) {
   if (entity) {
-    entity
-      .save()
-      .then(() => {
-        console.log("Entity saved successfully!");
-        if (callback) {
-          callback();
-        }
-      })
-      .catch(err => console.log(err));
+    return entity.save();
   } else {
-    console.log("Save is not successfully. Entity is empty");
+    console.log("Save is not successful. Entity is empty");
+    return new Promise();
   }
 }
 
-function readAll(entity, searchCriteria = {}) {
+function find(entity, searchCriteria = {}) {
   if (entity) {
     return entity.find(searchCriteria).exec();
   } else {
@@ -25,7 +18,17 @@ function readAll(entity, searchCriteria = {}) {
   }
 }
 
+function remove(entity, searchCriteria = {}) {
+  if (entity) {
+    return entity.remove(searchCriteria);
+  } else {
+    console.log("Remove is not successful. Entity is empty");
+    return new Promise();
+  }
+}
+
 module.exports = {
   save,
-  readAll
+  find,
+  remove
 };

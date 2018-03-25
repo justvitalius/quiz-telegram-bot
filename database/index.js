@@ -3,8 +3,9 @@ const CONN = "mongodb://localhost/";
 const DB_NAME = "quiz_db";
 
 const Question = require("./models/question");
+const User = require("./models/user");
 
-const { save, readAll } = require("./dao");
+const { save, find, remove } = require("./dao");
 
 const questionnaires = require("./questionaries");
 
@@ -12,10 +13,8 @@ function connect() {
   mongoose.connect(`${CONN}${DB_NAME}`, function(err) {
     if (err) throw err;
     console.log("Successfully connected");
-    readAll(Question)
+    find(Question)
       .then(results => {
-        console.log("Search results: ");
-        console.log(results);
         if (!results || !results.length) {
           console.log("Database is empty. Insert data in database...");
           init();
@@ -35,10 +34,35 @@ function init() {
 }
 
 function getAllQuestionnaires() {
-  return readAll(Question);
+  return find(Question);
+}
+
+function getUserById(id) {
+  return find(User, { id });
+}
+
+function getAllUsers() {
+  return find(User);
+}
+
+function createUser(user) {
+  return save(new User(user));
+}
+
+function updateUser(user) {
+  return save(user);
+}
+
+function deleteUser(id) {
+  return remove(User, { id });
 }
 
 module.exports = {
   connect,
-  getAllQuestionnaires
+  getAllQuestionnaires,
+  getAllUsers,
+  deleteUser,
+  updateUser,
+  createUser,
+  getUserById
 };
