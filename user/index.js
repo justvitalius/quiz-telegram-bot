@@ -24,7 +24,7 @@ function setNextStatus(userProfile = {}) {
       userProfile.status = statuses[2];
       break;
     case statuses[2]:
-      userProfile.status = statuses[3];
+      userProfile.status = statuses[1];
       break;
     case statuses[3]:
       userProfile.status = statuses[2];

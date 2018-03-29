@@ -1,5 +1,5 @@
 const TelegramBot = require("node-telegram-bot-api");
-const TOKEN = "437490297:AAG4HUywKyNBtEsqKVv6tMmGbRsNeDFsSSo";
+const TOKEN = "588143760:AAEjsGv8eirVN2CAmnBRQtIKsqrycWQCwXw";
 
 console.log(process.env);
 
@@ -8,105 +8,152 @@ const bot = new TelegramBot(TOKEN, { polling: true });
 const http = require("http");
 http.createServer((req, res) => res.end("ok")).listen(process.env.PORT || 5000);
 
-const questionnaires = require("../questionaries");
 const getQuestion = require("../quizer");
 const compareAnswer = require("../compare-answer");
 const { generateUser, setNextStatus } = require("../user");
 const { renderQuestion } = require("./message");
+const {
+  connect,
+  getAllQuestionnaires,
+  getAllUsers,
+  updateUser,
+  createUser,
+  getUserById,
+  deleteUser
+} = require("../database");
 
-const userProfiles = new Map();
-
-const userProfile = {
-  answers: []
-};
+connect();
 
 bot.onText(/\/clear/, msg => {
-  userProfiles.delete(msg.from.id);
-
-  bot.sendMessage(
-    msg.chat.id,
-    `Профиль пользователя ${msg.from.username} уничтожен`
-  );
+  deleteUser(msg.from.id)
+    .then(() => {
+      console.log("User was deleted, id=", msg.from.id);
+      bot.sendMessage(
+        msg.chat.id,
+        `Профиль пользователя ${msg.from.username} уничтожен`
+      );
+    })
+    .catch(err => console.log(err));
 });
 
 bot.onText(/\/start/, msg => {
-  const userProfile = generateUser({
-    chatId: msg.chat.id,
-    id: msg.from.id,
-    username: msg.from.username
-  });
+  getUserById(msg.from.id)
+    .then(user => {
+      if (!user || !user.length) {
+        const newUser = generateUser({
+          chatId: msg.chat.id,
+          id: msg.from.id,
+          username: msg.from.username
+        });
 
-  userProfiles.set(userProfile.id, userProfile);
-
-  bot.sendMessage(
-    userProfile.id,
-    `
-Приветствую, ${msg.from.username}!
-Вы добавлены в список анкетирующихся.
-Через некоторое время вы получите вопрос.
-  `
-  );
+        createUser(newUser)
+          .then(() => {
+            bot.sendMessage(
+              newUser.id,
+              `Приветствую, ${
+                msg.from.username
+              }! Вы добавлены в список анкетирующихся. Через некоторое время вы получите вопрос.`
+            );
+          })
+          .catch(err => console.log(err));
+      } else {
+        bot.sendMessage(
+          msg.chat.id,
+          `${msg.from.username}, вы уже стартовали тест!`
+        );
+      }
+    })
+    .catch(err => console.log(err));
 });
 
 bot.onText(/\d+/, msg => {
-  const userProfile = userProfiles.get(msg.from.id);
-  if (!userProfile) {
-    bot.sendMessage(
-      msg.chat.id,
-      "Вы не найдены в базе анкетирования. Отравьте /start, чтобы я включил вас в список."
-    );
-  }
-
-  if (userProfile.status === "end") {
-    bot.sendMessage(
-      msg.chat.id,
-      "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
-    );
-  }
-
-  if (userProfile.status === "with-question") {
-    setNextStatus(userProfile);
-    const answer = msg.text;
-    const isCorrectAnswer = compareAnswer(
-      userProfile.answers[userProfile.answers.length - 1],
-      answer
-    );
-    bot.sendMessage(
-      userProfile.id,
-      `
-      ${isCorrectAnswer ? "Правильный" : "Неправильный"} ответ
-    `
-    );
-  }
-});
-
-setInterval(() => {
-  Array.from(userProfiles.values())
-    .filter(user => ["wait-question", "new"].includes(user.status))
-    .forEach(user => {
-      const questionnaire = getQuestion(questionnaires, [0], 2, userProfile);
-      if (!questionnaire) {
-        user.status = "end";
+  getUserById(msg.from.id)
+    .then(user => {
+      if (!user || !user.length) {
         bot.sendMessage(
-          user.id,
+          msg.chat.id,
+          "Вы не найдены в базе анкетирования. Отравьте /start, чтобы я включил вас в список."
+        );
+      }
+
+      user = user[0];
+
+      if (user.status === "end") {
+        bot.sendMessage(
+          msg.chat.id,
           "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
         );
       }
-      setNextStatus(user);
-      user.answers = user.answers.concat(questionnaire);
-      console.log(
-        renderQuestion({
-          question: questionnaire.question,
-          options: questionnaire.options
-        })
-      );
-      bot.sendMessage(
-        user.id,
-        renderQuestion({
-          question: questionnaire.question,
-          options: questionnaire.options
-        }),
-        { parse_mode: "HTML" }
-      );
-    });
+
+      if (user.status === "with-question") {
+        console.log("Answer was ", msg.text);
+        setNextStatus(user);
+        console.log("user: ", user.answers);
+        const answer = msg.text;
+        const isCorrectAnswer = compareAnswer(
+          user.answers[user.answers.length - 1],
+          answer
+        );
+        updateUser(user)
+          .then(() => {
+            bot.sendMessage(
+              user.id,
+              `${isCorrectAnswer ? "Правильный" : "Неправильный"} ответ`
+            );
+          })
+          .catch(err => console.log(err));
+      }
+    })
+    .catch(err => console.log(err));
+});
+
+setInterval(() => {
+  getAllUsers()
+    .then(users => {
+      users
+        .filter(user => ["wait-question", "new"].includes(user.status))
+        .forEach(user => {
+          getAllQuestionnaires()
+            .then(results => {
+              let answers = user.answers.map(answer => answer.id) || [];
+              results = results.filter(result => !answers.includes(result.id));
+              const questionnaire = getQuestion(results, [0], 2);
+              if (!questionnaire) {
+                user.status = "end";
+                updateUser(user)
+                  .then(() => {
+                    bot.sendMessage(
+                      user.id,
+                      "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
+                    );
+                  })
+                  .catch(err => console.log(err));
+                return;
+              }
+              setNextStatus(user);
+              user.answers = user.answers.concat(questionnaire);
+              updateUser(user)
+                .then(() => {
+                  bot.sendMessage(
+                    user.id,
+                    renderQuestion({
+                      question: questionnaire.question,
+                      options: questionnaire.options
+                    }),
+                    { parse_mode: "HTML" }
+                  );
+                })
+                .catch(err => console.log(err));
+            })
+            .catch(err => {
+              user.status = "end";
+              bot.sendMessage(
+                user.id,
+                "Невозможно получить вопрос из базы данных. Пожалуйста, попробуйте позже"
+              );
+              console.log(err);
+            });
+        });
+    })
+    .catch(err => console.log(err));
 }, 2000);

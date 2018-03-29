@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "jest",
-    "start": "nodemon ./bot/index.js",
+    "start": "node ./bot/index.js",
     "precommit": "pretty-quick --staged"
   },
   "repository": {
@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/justVitalius/quiz-telegram-bot#readme",
   "dependencies": {
+    "mongoose": "^5.0.11",
     "node-telegram-bot-api": "^0.30.0"
   },
   "devDependencies": {
