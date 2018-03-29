@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/justVitalius/quiz-telegram-bot.svg?branch=master)](https://travis-ci.org/justVitalius/quiz-telegram-bot) [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat- square)]
+[![Build Status](https://travis-ci.org/justVitalius/quiz-telegram-bot.svg?branch=master)](https://travis-ci.org/justVitalius/quiz-telegram-bot)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)]
 
 # Quiz Telegram Bot
 
@@ -23,12 +24,44 @@
 * [http://perfectionkills.com/javascript-quiz/](http://perfectionkills.com/javascript-quiz/)
 * [https://www.w3schools.com/quiztest/quiztest.asp?qtest=JavaScript](https://www.w3schools.com/quiztest/quiztest.asp?qtest=JavaScript)
 
+# Как начать
+
+## MongoDB
+
+```
+// Установка монги
+docker pull mongo
+
+// Старт монги
+docker run -d -p 27017:27017 mongo
+```
+
+## Redis
+
+```
+// Установка редиса
+docker pull redis
+
+// Старт редиса
+docker run -d -p 6379:6379 redis
+```
+
+## Подготовка конфига
+
+* Создать файл `config/development.json`
+* Наполнить его по образу и подобию `config/default.json`
+* Убрать все атрибуты, которые могут быть наследованы из `config/default.json`
+
+## Запуск приложения
+
+Чтобы запустить приложение с development.json конфигом, нужно выполнить `npm start`
+
 # Технический стек и ссылки
 
 ## Стек
 
 * NodeJS
-* Angular
+* Vue.js
 * Redis
 * MongoDB
 

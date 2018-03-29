@@ -1,12 +1,15 @@
 const TelegramBot = require("node-telegram-bot-api");
-const TOKEN = "588143760:AAEjsGv8eirVN2CAmnBRQtIKsqrycWQCwXw";
+const config = require("config");
+const TOKEN = config.get("telegramBotToken");
 
 console.log(process.env);
 
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 const http = require("http");
-http.createServer((req, res) => res.end("ok")).listen(process.env.PORT || 5000);
+http
+  .createServer((req, res) => res.end("ok"))
+  .listen(config.get("server.port"));
 
 const getQuestion = require("../quizer");
 const compareAnswer = require("../compare-answer");

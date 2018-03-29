@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
-const CONN = "mongodb://localhost/";
-const DB_NAME = "quiz_db";
+const config = require("config");
+
+const CONN = config.get("mongo.host");
+const DB_NAME = config.get("mongo.dbName");
 
 const Question = require("./models/question");
 const User = require("./models/user");
