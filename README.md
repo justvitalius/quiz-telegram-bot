@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/justVitalius/quiz-telegram-bot.svg?branch=master)](https://travis-ci.org/justVitalius/quiz-telegram-bot)
-[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)]
+![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)]
 
 # Quiz Telegram Bot
 
@@ -8,11 +8,15 @@
 * Вопросы представить вопросы по категориям: javascript, angular, jest, vue, webpack, enzyme, typescript, flow
 * Вопросов должно быть создано с запасом, чтобы была некая рандомность
 * Пользователь должен ответить на Nx вопросов по каждой категории
-* Кол-во Nx определяется по каждой категории в отдельности
-* При получении ответа сразу высчитываем «правильность» и сохраняем в БД
-* В пользователе нужно хранить статус «в очереди на отправку» или «ожидает новый вопрос» чтобы проще было фильтровать пользователей, которые ждут вопрос
+* Кол-во Nx определяется по каждой категории в отдельности. И записывается во время миграции вопросов.
+* При получении ответа от Игрока сразу высчитываем «правильность» и сохраняем в БД
+* В Игроке нужно хранить статус «в очереди на отправку» или «ожидает новый вопрос» чтобы проще было фильтровать пользователей, которые ждут вопрос
 * В каждом пользователе нужно хранить дату смены статуса, чтобы по ней делать выборку. Так можно спамить не более Y раз в Z минут. И находить пользователей, сообщения которых висят в очереди.
 * Пока пользователь не ответит, не присылать ему новый вопрос
+* Есть некий дедлайн, после которого не высылаются вопросы игроку
+* Нельзя завершить тест в любой момент. Тест считается завершенным, когда получены ответы на все вопросы
+* Один и тот же игрок может играть оба дня. И при этом его статистика должна делиться
+* HR определяют победителя по статистике ответов по каждому игроку
 * Никаких шуток в боте
 * Стараемся делать вопросы с ответами в виде кнопок, радиобатонов, чекбоксов
 * Вопросы идут один за одним
@@ -75,6 +79,51 @@ docker run -d -p 6379:6379 redis
 Чтобы запустить приложение с development.json конфигом, нужно выполнить `npm start`
 
 # Технический стек и ссылки
+
+## Модель данных
+
+```
+User {
+    id: uuid
+    telegramId: uuid
+    username: string
+    firstName: string
+    secondName: string
+    lastName: string
+    status: string
+    updatedAt: datetime
+    answers: [
+        {
+            questionnaireId: uuid
+            text: string
+            isCorrect: boolean
+            answeredAt: datetime
+        }, ...
+    ]
+
+}
+
+Questionnaire {
+    id: uuid
+    title: string
+    category: string oneOf [javascript | enzyme | react | angular | jasmine | nodejs]
+    options: [ <string>, <string> ]
+    actived: boolean
+    answer: {
+        value: string
+        byExpression: boolean
+    }
+}
+
+Category {
+    title: string
+    numberOfNeedAnswers: number
+}
+```
+
+При миграции создается модель User, Questionnaire и Category.
+Questionnaires заполняется из файла отдельным скриптом миграции,
+в этот же момент динамически расчитывается модель Category и тоже записывается в БД.
 
 ## Стек
 
