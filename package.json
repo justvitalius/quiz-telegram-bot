@@ -8,8 +8,9 @@
   },
   "scripts": {
     "test": "jest",
-    "start": "node ./bot/index.js",
-    "precommit": "pretty-quick --staged"
+    "start": "nodemon ./src/bot/index.js",
+    "precommit": "pretty-quick --staged",
+    "statistics-server": "node src/statistics/index.js"
   },
   "repository": {
     "type": "git",
