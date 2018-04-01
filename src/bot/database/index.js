@@ -4,12 +4,12 @@ const config = require("config");
 const CONN = config.get("mongo.host");
 const DB_NAME = config.get("mongo.dbName");
 
-const Question = require("./models/question");
-const User = require("./models/user");
+const Question = require("../../database/models/question");
+const User = require("../../database/models/user");
 
-const { save, find, remove } = require("./dao");
+const { save, find, remove } = require("../../database/dao/index");
 
-const questionnaires = require("./questionaries");
+const questionnaires = require("../../database/questionnaires");
 
 function connect() {
   mongoose.connect(`${CONN}${DB_NAME}`, function(err) {

@@ -3,7 +3,7 @@ const getQuestion = require("./index");
 const {
   generateQuestionnaires,
   generateQuestionnaire
-} = require("../test-helpers/questionnaires");
+} = require("../../../test-helpers/questionnaires");
 
 describe("Опросник подбирает вопрос игроку на основе истории вопросов", () => {
   describe("На входе общий список вопросов, профайл игрока, задача <выдать вопрос>", () => {

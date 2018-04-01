@@ -1,5 +1,7 @@
 const { getQuestionnairesByType } = require("./helpers");
-const { generateQuestionnaire } = require("../test-helpers/questionnaires");
+const {
+  generateQuestionnaire
+} = require("../../../test-helpers/questionnaires");
 
 describe("questionnaires helpers", () => {
   describe("getQuestionnairesByType", () => {
