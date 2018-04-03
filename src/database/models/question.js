@@ -2,11 +2,13 @@ const mongoose = require("mongoose");
 
 const questionSchema = new mongoose.Schema({
   id: Number,
-  question: String,
-  type: Number,
+  title: String,
+  category: String,
   options: [String],
+  actived: Boolean,
+  hash: String,
   answer: {
-    compareByValue: Boolean,
+    compareByExpression: Boolean,
     value: String
   }
 });
