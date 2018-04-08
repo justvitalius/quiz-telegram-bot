@@ -103,13 +103,14 @@ function handleUserAnswer(user, msg) {
 }
 
 function startQuiz(msg) {
-  const { userId, username } = parseMsg(msg);
+  const { userId, username, firstName, lastName } = parseMsg(msg);
   console.log("start");
   return new Promise((resolve, reject) => {
     const newUser = generateUser({
       chatId: userId,
       id: userId,
-      username: username
+      username: username,
+      fio: `${lastName} ${firstName}`
     });
 
     return createUser(newUser)
