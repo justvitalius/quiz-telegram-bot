@@ -17,7 +17,7 @@ const {
   getAllQuestionnaires,
   getAllUsers,
   updateUser
-} = require("./database");
+} = require("../database");
 
 const {
   destroyUserProfile,

@@ -1,12 +1,9 @@
 const {
-  connect,
-  getAllQuestionnaires,
-  getAllUsers,
   updateUser,
   createUser,
   getUserById,
   deleteUser
-} = require("../database");
+} = require("../../database");
 
 const { setNextStatus, generateUser } = require("../user");
 const compareAnswer = require("../compare-answer");
