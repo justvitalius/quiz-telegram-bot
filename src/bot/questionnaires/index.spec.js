@@ -1,4 +1,4 @@
-const { getRandomQuestionnaire } = require("../questionnaires/helpers");
+const { getRandomQuestionnaire } = require("./helpers");
 const getQuestion = require("./index");
 const {
   generateQuestionnaires,

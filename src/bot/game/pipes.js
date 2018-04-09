@@ -1,0 +1,87 @@
+const R = require("ramda");
+
+const { WITH_QUESTIONS_STATUS } = require("../user");
+
+module.exports = {
+  processNoQuestionnaireForGamer,
+  processHasQuestionnaireForGamer,
+  processUserEndStatus,
+  processUserNewStatus,
+  generatePayload: processNewPayload
+};
+
+function processNoQuestionnaireForGamer(questionnaire = {}) {
+  return payload => {
+    const { user: gamer = {}, message = {} } = payload;
+    if (!questionnaire) {
+      return R.mergeDeepRight(payload, {
+        message: {
+          id: gamer.telegramId,
+          msg:
+            "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
+        }
+      });
+    }
+    return payload;
+  };
+}
+
+function processHasQuestionnaireForGamer(questionnaire = {}) {
+  return payload => {
+    const { gamer = { answers: [] }, message = {} } = payload;
+    if (questionnaire) {
+      return Object.assign({}, payload, {
+        gamer: Object.assign(gamer, {
+          status: WITH_QUESTIONS_STATUS,
+          answers: gamer.answers.concat(questionnaire)
+        }),
+        message: {
+          id: gamer.telegramId,
+          msg: questionnaire.title,
+          replies: questionnaire.options
+        }
+      });
+    }
+    return payload;
+  };
+}
+
+function processUserEndStatus({ user = {}, payload = {} }) {
+  if (user.status === "end") {
+    return Object.assign({
+      user: Object.assign({}, user, { status: "end" }),
+      payload: Object.assign({}, payload, {
+        id: user.telegramId,
+        msg:
+          "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
+      })
+    });
+  }
+  return {
+    user,
+    payload
+  };
+}
+
+function processUserNewStatus({ user = {}, payload = {} }) {
+  if (user.status === "new") {
+    return Object.assign({
+      user,
+      payload: Object.assign({}, payload, {
+        id: user.telegramId,
+        msg: "Нужен вопрос"
+      })
+    });
+  }
+  return {
+    user,
+    payload
+  };
+}
+
+function processNewPayload(gamer) {
+  return {
+    gamer,
+    message: {}
+  };
+}

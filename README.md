@@ -3,27 +3,6 @@
 
 # Quiz Telegram Bot
 
-## Статус по модулям
-
-| Чеклист продукта                             | Статус |
-| -------------------------------------------- | ------ |
-| Каркас бота на polling                       | 100%   |
-| Бот работает на webhooks                     | 0%     |
-| Скрипты автодеплоя на чистый комп            | 40%    |
-| Задеплоено на vds Глеба                      | 0%     |
-| Обход лимитов телеграмма по кол-ву сообщение | 0%     |
-| Хранение вопросов и игроков в БД             | 100%   |
-| Апи-сервер для выдачи статистики             | 10%    |
-| Админка со статистикой по игрокам            | 10%    |
-| Проверить админку на HR                      | 0%     |
-| Отправлять сообщение игроку из админки       | 0%     |
-| 100 вопросов по javascript                   | 28%    |
-| 50 вопросов по react                         | 0%     |
-| 30 вопросов по css                           | 0%     |
-| 20 вопросов по html                          | 0%     |
-| 10 вопросов по mongodb                       | 0%     |
-| Тестовая проверка на СБТ                     | 0%     |
-
 ## Геймификация
 
 * Вопросы представить вопросы по категориям: javascript, angular, jest, vue, webpack, enzyme, typescript, flow
@@ -52,10 +31,12 @@ new -> waiting-questions -> with-question -> end
 
 ```
 {
-    payload: <распарсенный ответ типа parseMsg>
-    user: <найденый пользователь в БД>
-    msg: <отрендеренное сообщение, которое нужно отправить пользователю>
-    sendOptions: <доп.атрибуты при пересылке сообщений типа HTML mode>
+    message: {
+        id, // id чата
+        msg, // текст сообщения (вопроса)
+        replies // массив возможных ответов (кнопки)
+    }
+    gamer: <найденый пользователь в БД>
 }
 ```
 
@@ -129,37 +110,9 @@ https://github.com/w3dip/statistics-ui
 
 ## Модель данных
 
+Актуальные User и Questionnaire можно смотреть в `src/database/models`
+
 ```
-User {
-    id: uuid
-    telegramId: uuid
-    username: string
-    fio: string
-    status: string
-    updatedAt: datetime
-    answers: [
-        {
-            questionnaireId: uuid
-            text: string
-            isCorrect: boolean
-            answeredAt: datetime
-        }, ...
-    ]
-
-}
-
-Questionnaire {
-    id: uuid
-    title: string
-    category: string oneOf [javascript | enzyme | react | angular | jasmine | nodejs]
-    options: [ <string>, <string> ]
-    actived: boolean
-    answer: {
-        value: string
-        byExpression: boolean
-    }
-}
-
 Category {
     title: string
     numberOfNeedAnswers: number
