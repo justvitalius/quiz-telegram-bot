@@ -9,7 +9,7 @@ http
   .createServer((req, res) => res.end("ok"))
   .listen(config.get("bot_server.port"));
 
-const getQuestion = require("./quizer/index");
+const getQuestion = require("./questionnaires/index");
 const { setNextStatus } = require("./user");
 const { renderQuestion } = require("./messages");
 const {
@@ -23,7 +23,8 @@ const {
   destroyUserProfile,
   handleUserAnswer,
   checkForExistingUser,
-  startQuiz
+  startQuiz,
+  processWaitingUsers
 } = require("./game/actions");
 
 initQuestions();
@@ -39,7 +40,8 @@ bot.onText(/\/start/, msg => {
     .catch(({ id, msg }) => bot.sendMessage(id, msg));
 });
 
-bot.onText(/\d+/, msg => {
+bot.onText(/\w+/, msg => {
+  console.log("Income message", msg.text);
   checkForExistingUser(msg)
     .then(user => handleUserAnswer(user, msg))
     .then(({ id, msg }) => bot.sendMessage(id, msg))
@@ -47,64 +49,17 @@ bot.onText(/\d+/, msg => {
 });
 
 setInterval(() => {
-  getAllUsers()
-    .then(users => {
-      users
-        .filter(user => ["wait-question", "new"].includes(user.status))
-        .forEach(user => {
-          getAllQuestionnaires()
-            .then(results => {
-              let answers =
-                user.answers.map(answer => answer._id.toString()) || [];
-              results = results.filter(
-                result => !answers.includes(result._id.toString())
-              );
-              const questionnaire = getQuestion(results, ["javascript"], 10);
-              if (!questionnaire) {
-                user.status = "end";
-                updateUser(user)
-                  .then(() => {
-                    bot.sendMessage(
-                      user.id,
-                      "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
-                    );
-                  })
-                  .catch(err => console.log(err));
-                return;
-              }
-              setNextStatus(user);
-              user.answers = user.answers.concat(questionnaire);
-              updateUser(user)
-                .then(() => {
-                  //Прибавляем единицу к номеру варианта ответа, чтобы нумерация была с 1
-                  bot.sendMessage(
-                    user.id,
-                    renderQuestion({
-                      question: questionnaire.title,
-                      options: questionnaire.options
-                    }),
-                    {
-                      parse_mode: "HTML",
-                      reply_markup: {
-                        keyboard: questionnaire.options.map((text, i) => [
-                          { text: i + 1 }
-                        ]),
-                        one_time_keyboard: true
-                      }
-                    }
-                  );
-                })
-                .catch(err => console.log(err));
-            })
-            .catch(err => {
-              user.status = "end";
-              bot.sendMessage(
-                user.id,
-                "Невозможно получить вопрос из базы данных. Пожалуйста, попробуйте позже"
-              );
-              console.log(err);
-            });
-        });
-    })
-    .catch(err => console.log(err));
+  processWaitingUsers()
+    .then(messages =>
+      messages.map(({ id, msg, replies }) =>
+        bot.sendMessage(id, renderQuestion(msg), {
+          parse_mode: "HTML",
+          reply_markup: {
+            keyboard: replies.map((text, i) => [{ text }]),
+            one_time_keyboard: true
+          }
+        })
+      )
+    )
+    .catch(console.log);
 }, 2000);

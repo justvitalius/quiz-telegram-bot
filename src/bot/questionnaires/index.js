@@ -1,7 +1,7 @@
 const {
   getRandomQuestionnaire,
   getQuestionnairesByCategory
-} = require("../questionnaires/helpers");
+} = require("./helpers");
 
 module.exports = getQuestion = (
   questionnaires = [],

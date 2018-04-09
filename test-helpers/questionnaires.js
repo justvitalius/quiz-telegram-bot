@@ -2,7 +2,8 @@ const faker = require("faker");
 
 module.exports = {
   generateQuestionnaires,
-  generateQuestionnaire
+  generateQuestionnaire,
+  questionnaire: generateQuestionnaire
 };
 
 function generateQuestionnaires(count = 0, categories = []) {
