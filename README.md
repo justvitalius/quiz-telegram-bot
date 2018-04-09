@@ -1,7 +1,29 @@
 [![Build Status](https://travis-ci.org/justVitalius/quiz-telegram-bot.svg?branch=master)](https://travis-ci.org/justVitalius/quiz-telegram-bot)
-![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)]
+![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)
 
 # Quiz Telegram Bot
+
+## Статус по модулям
+| Чеклист продукта | Статус |
+| --- | --- |
+| Каркас бота на polling |100% |
+| Бот работает на webhooks | 0% |
+| Скрипты автодеплоя на чистый комп | 40% |
+| Задеплоено на vds Глеба | 0% |
+| Обход лимитов телеграмма по кол-ву сообщение | 0% |
+| Хранение вопросов и игроков в БД | 100% | 
+| Апи-сервер для выдачи статистики | 10% | 
+| Админка со статистикой по игрокам | 10% | 
+| Проверить админку на HR | 0% |
+| Отправлять сообщение игроку из админки | 0% |
+| 100 вопросов по javascript | 28% |
+| 50 вопросов по react | 0% |
+| 30 вопросов по css | 0% |
+| 20 вопросов по html | 0% |
+| 10 вопросов по mongodb | 0% |
+| Тестовая проверка на СБТ | 0% |
+
+
 
 ## Геймификация
 
