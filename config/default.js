@@ -1,5 +1,5 @@
 module.exports = {
-  telegramBotToken: "588143760:AAEjsGv8eirVN2CAmnBRQtIKsqrycWQCwXw",
+  telegramBotToken: "<insert token into development.json>",
   mongo: {
     host: "mongodb://localhost:27017/",
     dbName: "quiz_db"
