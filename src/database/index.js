@@ -11,22 +11,29 @@ const { save, find, remove } = require("./dao/index");
 
 const questionnaires = require("./questionnaires");
 
+function initQuestions() {
+  connect()
+    .then(() => {
+      console.log("Successfully connected");
+      find(Question)
+        .then(results => {
+          if (!results || !results.length) {
+            console.log("Database is empty. Insert data in database...");
+            init();
+            console.log("Database initialization compeleted");
+          } else {
+            console.log("Database contains questions");
+          }
+        })
+        .catch(err => console.log(err));
+    })
+    .catch(err => {
+      throw err;
+    });
+}
+
 function connect() {
-  mongoose.connect(`${CONN}${DB_NAME}`, function(err) {
-    if (err) throw err;
-    console.log("Successfully connected");
-    find(Question)
-      .then(results => {
-        if (!results || !results.length) {
-          console.log("Database is empty. Insert data in database...");
-          init();
-          console.log("Database initialization compeleted");
-        } else {
-          console.log("Database contains questions");
-        }
-      })
-      .catch(err => console.log(err));
-  });
+  return mongoose.connect(`${CONN}${DB_NAME}`);
 }
 
 function init() {
@@ -60,6 +67,7 @@ function deleteUser(id) {
 }
 
 module.exports = {
+  initQuestions,
   connect,
   getAllQuestionnaires,
   getAllUsers,

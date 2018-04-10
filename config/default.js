@@ -5,6 +5,7 @@ module.exports = {
     dbName: "quiz_db"
   },
   server: {
-    port: process.env.PORT || 5000
+    port: process.env.PORT || 5000,
+    apiPort: process.env.API_PORT || 3000
   }
 };

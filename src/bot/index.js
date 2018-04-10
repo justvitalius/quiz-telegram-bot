@@ -13,7 +13,7 @@ const getQuestion = require("./quizer/index");
 const { setNextStatus } = require("./user");
 const { renderQuestion } = require("./messages");
 const {
-  connect,
+  initQuestions,
   getAllQuestionnaires,
   getAllUsers,
   updateUser
@@ -26,7 +26,7 @@ const {
   startQuiz
 } = require("./game/actions");
 
-connect();
+initQuestions();
 
 bot.onText(/\/clear/, msg => {
   destroyUserProfile(msg).then(({ id, msg }) => bot.sendMessage(id, msg));

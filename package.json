@@ -25,7 +25,9 @@
   },
   "homepage": "https://github.com/justVitalius/quiz-telegram-bot#readme",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "config": "^1.30.0",
+    "express": "^4.16.3",
     "mongoose": "^5.0.11",
     "node-telegram-bot-api": "^0.30.0"
   },
