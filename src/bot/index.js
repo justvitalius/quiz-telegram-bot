@@ -7,7 +7,7 @@ const bot = new TelegramBot(TOKEN, { polling: true });
 const http = require("http");
 http
   .createServer((req, res) => res.end("ok"))
-  .listen(config.get("server.port"));
+  .listen(config.get("bot_server.port"));
 
 const getQuestion = require("./quizer/index");
 const { setNextStatus } = require("./user");

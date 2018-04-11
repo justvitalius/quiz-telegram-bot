@@ -2,7 +2,7 @@ const config = require("config");
 
 const express = require("express");
 const app = express();
-const port = config.get("server.apiPort");
+const port = config.get("api_server.port");
 const bodyParser = require("body-parser");
 const endpoints = require("./endpoints");
 const { connect } = require("../database");
