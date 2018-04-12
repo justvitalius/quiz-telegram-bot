@@ -13,9 +13,12 @@
     "migrator": "node src/migrator/index.js",
     "bot:development": "npm start",
     "api:development": "nodemon ./src/statistics/index.js",
-    "bot:production": "pm2 start ./src/bot/index.js --name node-bot-app",
+    "bot:prealpha": "pm2 start ecosystem.config.js --only bot-app",
+    "api:prealpha": "pm2 start ecosystem.config.js --only api-app",
+    "bot:production":
+      "pm2 start ecosystem.config.js --only bot-app --env production",
     "api:production":
-      "pm2 start ./src/statistics/index.js --name node-statistics-app"
+      "pm2 start ecosystem.config.js --only api-app --env production"
   },
   "repository": {
     "type": "git",

@@ -61,3 +61,4 @@ typings/
 
 config/development.*
 config/production.*
+config/test.*
