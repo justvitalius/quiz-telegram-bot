@@ -5,12 +5,13 @@ module.exports = {
   generateQuestionnaire
 };
 
-function generateQuestionnaires(count = 0, types = []) {
+function generateQuestionnaires(count = 0, categories = []) {
   const collection = [];
   for (let i = 0; i < count; i++) {
     collection.push(
       generateQuestionnaire({
-        type: types[Math.floor(Math.random() * (types.length - 1))]
+        category:
+          categories[Math.floor(Math.random() * (categories.length - 1))]
       })
     );
   }
@@ -22,9 +23,10 @@ function generateQuestionnaire(options) {
   return Object.assign(
     {
       id: Date.now(),
-      type: 0,
-      question: faker.lorem.sentence(),
+      title: faker.lorem.sentence(),
+      category: 0,
       options: ["incorrect", "correct", "incorrect", "incorrect"],
+      actived: true,
       answer: {
         value: "correct"
       }

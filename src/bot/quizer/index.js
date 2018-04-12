@@ -1,11 +1,11 @@
 const {
   getRandomQuestionnaire,
-  getQuestionnairesByType
+  getQuestionnairesByCategory
 } = require("../questionnaires/helpers");
 
 module.exports = getQuestion = (
   questionnaires = [],
-  typeOrder = [],
+  categoriesOrder = [],
   maxCountByType = 0,
   userProfile = {
     answers: []
@@ -16,23 +16,24 @@ module.exports = getQuestion = (
 
   if (answersCount === 0) {
     return getRandomQuestionnaire(
-      getQuestionnairesByType(questionnaires, typeOrder[0])
+      getQuestionnairesByCategory(questionnaires, categoriesOrder[0])
     );
   }
 
-  if (answersCount >= typeOrder.length * maxCountByType) {
+  if (answersCount >= categoriesOrder.length * maxCountByType) {
     return null;
   }
 
   const countAnswerInLastType = answersCount % maxCountByType;
   const lastAnswer = answers[answersCount - 1];
-  let nextQuestionnaireType = lastAnswer.type;
+  let nextQuestionnaireType = lastAnswer.category;
 
   if (countAnswerInLastType === 0) {
-    nextQuestionnaireType = typeOrder[typeOrder.indexOf(lastAnswer.type) + 1];
+    nextQuestionnaireType =
+      categoriesOrder[categoriesOrder.indexOf(lastAnswer.category) + 1];
   }
 
   return getRandomQuestionnaire(
-    getQuestionnairesByType(questionnaires, nextQuestionnaireType)
+    getQuestionnairesByCategory(questionnaires, nextQuestionnaireType)
   );
 };
