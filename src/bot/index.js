@@ -55,8 +55,8 @@ setInterval(() => {
           getAllQuestionnaires()
             .then(results => {
               let answers = user.answers.map(answer => answer.id) || [];
-              results = results.filter(result => !answers.includes(result.id));
-              const questionnaire = getQuestion(results, [0], 2);
+              // results = results.filter(result => !answers.includes(result.id));
+              const questionnaire = getQuestion(results, ["javascript"], 10);
               if (!questionnaire) {
                 user.status = "end";
                 updateUser(user)
@@ -76,10 +76,18 @@ setInterval(() => {
                   bot.sendMessage(
                     user.id,
                     renderQuestion({
-                      question: questionnaire.question,
+                      question: questionnaire.title,
                       options: questionnaire.options
                     }),
-                    { parse_mode: "HTML" }
+                    {
+                      parse_mode: "HTML",
+                      reply_markup: {
+                        keyboard: questionnaire.options.map((text, i) => [
+                          { text: i }
+                        ]),
+                        one_time_keyboard: true
+                      }
+                    }
                   );
                 })
                 .catch(err => console.log(err));

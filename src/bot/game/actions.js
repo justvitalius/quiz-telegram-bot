@@ -88,7 +88,7 @@ function handleUserAnswer(user, msg) {
         .then(_ => {
           resolve({
             id: userId,
-            msg: `${isCorrectAnswer ? "Правильный" : "Неправильный"} ответ`
+            msg: `Спасибо...ждите следующий вопрос!`
           });
         })
         .catch(err => {
