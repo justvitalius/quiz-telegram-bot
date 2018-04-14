@@ -27,8 +27,18 @@ function remove(entity, searchCriteria = {}) {
   }
 }
 
+function updateArrayValue(entity, searchCriteria = {}, updateStatement = {}) {
+  if (entity) {
+    return entity.update(searchCriteria, { $set: updateStatement });
+  } else {
+    console.log("Update is not successful. Entity is empty");
+    return new Promise();
+  }
+}
+
 module.exports = {
   save,
   find,
-  remove
+  remove,
+  updateArrayValue
 };

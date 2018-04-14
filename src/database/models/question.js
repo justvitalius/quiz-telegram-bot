@@ -8,8 +8,7 @@ const questionSchema = new mongoose.Schema({
   actived: Boolean,
   hash: String,
   answer: {
-    compareByExpression: Boolean,
-    value: String
+    value: Number
   }
 });
 

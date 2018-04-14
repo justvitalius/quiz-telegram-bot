@@ -1,8 +1,10 @@
 const {
   updateUser,
+  updateUserAnswer,
   createUser,
   getUserById,
-  deleteUser
+  deleteUser,
+  getAllUsers
 } = require("../../database");
 
 const { setNextStatus, generateUser } = require("../user");
@@ -76,20 +78,53 @@ function handleUserAnswer(user, msg) {
       });
     }
     if (user.status === "with-question") {
-      console.log("Answer was ", msg.text);
+      console.log("Answer was ", msg);
       setNextStatus(user);
       console.log("user: ", user.answers);
       const answer = msg.text;
-      const isCorrectAnswer = compareAnswer(
-        user.answers[user.answers.length - 1],
-        answer
+      const currentQuestionIndex = user.answers.length - 1;
+      let currentQuestion = user.answers[currentQuestionIndex];
+      console.log(
+        "Текущий вопрос, на который дается ответ",
+        currentQuestionIndex
       );
-      updateUser(user)
+      const isCorrect = compareAnswer(currentQuestion, answer);
+      console.log("Правильный ли ответ?", isCorrect);
+      currentQuestion = {
+        ...currentQuestion,
+        isCorrect,
+        answeredAt: msg.date
+      };
+      console.log("Обновили ответ ", user.answers[currentQuestionIndex]);
+      console.log("Обновили ответ ", user);
+      updateUserAnswer(currentQuestion, {
+        isCorrect,
+        answeredAt: msg.date
+      })
         .then(_ => {
-          resolve({
-            id: userId,
-            msg: `Спасибо...ждите следующий вопрос!`
-          });
+          console.log("Ответ успешно обновлен");
+          updateUser(user)
+            .then(_ => {
+              getAllUsers()
+                .then(users => {
+                  console.log(
+                    "Проверяем что пользователь обновился",
+                    users[0].answers
+                  );
+                })
+                .catch(err => console.log(err));
+              resolve({
+                id: userId,
+                msg: `Спасибо...ждите следующий вопрос!`
+              });
+            })
+            .catch(err => {
+              console.log(err);
+              reject({
+                id: userId,
+                msg: "Произошла ошибка на этапе выдачи вопросов"
+              });
+            });
         })
         .catch(err => {
           console.log(err);
@@ -107,7 +142,7 @@ function startQuiz(msg) {
   console.log("start");
   return new Promise((resolve, reject) => {
     const newUser = generateUser({
-      chatId: userId,
+      telegramId: userId,
       id: userId,
       username: username,
       fio: `${lastName} ${firstName}`

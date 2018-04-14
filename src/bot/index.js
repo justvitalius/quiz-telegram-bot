@@ -76,6 +76,7 @@ setInterval(() => {
               user.answers = user.answers.concat(questionnaire);
               updateUser(user)
                 .then(() => {
+                  //Прибавляем единицу к номеру варианта ответа, чтобы нумерация была с 1
                   bot.sendMessage(
                     user.id,
                     renderQuestion({
@@ -86,7 +87,7 @@ setInterval(() => {
                       parse_mode: "HTML",
                       reply_markup: {
                         keyboard: questionnaire.options.map((text, i) => [
-                          { text: i }
+                          { text: i + 1 }
                         ]),
                         one_time_keyboard: true
                       }

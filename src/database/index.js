@@ -7,7 +7,7 @@ const DB_NAME = config.get("mongo.dbName");
 const Question = require("./models/question");
 const User = require("./models/user");
 
-const { save, find, remove } = require("./dao/index");
+const { save, find, remove, updateArrayValue } = require("./dao/index");
 
 const questionnaires = require("./questionnaires");
 
@@ -59,7 +59,20 @@ function createUser(user) {
 }
 
 function updateUser(user) {
+  console.log("Пользователь для обновления", user);
   return save(user);
+}
+
+function updateUserAnswer(answer, updatedFields) {
+  console.log("Ответ для обновления", answer);
+  return updateArrayValue(
+    User,
+    { "answers._id": answer._id },
+    {
+      "answers.$.answer.isCorrect": updatedFields.isCorrect,
+      "answers.$.answer.answeredAt": updatedFields.answeredAt
+    }
+  );
 }
 
 function deleteUser(id) {
@@ -73,6 +86,7 @@ module.exports = {
   getAllUsers,
   deleteUser,
   updateUser,
+  updateUserAnswer,
   createUser,
   getUserById
 };

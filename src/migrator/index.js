@@ -93,7 +93,7 @@ function prepareQuestionnaire(questionnaire) {
     hash: hash(questionnaire),
     actived: true,
     category: c,
-    answers: {
+    answer: {
       value: v
     }
   };
