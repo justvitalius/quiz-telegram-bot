@@ -54,8 +54,11 @@ setInterval(() => {
         .forEach(user => {
           getAllQuestionnaires()
             .then(results => {
-              let answers = user.answers.map(answer => answer.id) || [];
-              // results = results.filter(result => !answers.includes(result.id));
+              let answers =
+                user.answers.map(answer => answer._id.toString()) || [];
+              results = results.filter(
+                result => !answers.includes(result._id.toString())
+              );
               const questionnaire = getQuestion(results, ["javascript"], 10);
               if (!questionnaire) {
                 user.status = "end";
