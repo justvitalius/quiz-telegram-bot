@@ -59,12 +59,10 @@ function createUser(user) {
 }
 
 function updateUser(user) {
-  console.log("Пользователь для обновления", user);
   return save(user);
 }
 
 function updateUserAnswer(answer, updatedFields) {
-  console.log("Ответ для обновления", answer);
   return updateArrayValue(
     User,
     { "answers._id": answer._id },

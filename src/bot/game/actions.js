@@ -3,8 +3,7 @@ const {
   updateUserAnswer,
   createUser,
   getUserById,
-  deleteUser,
-  getAllUsers
+  deleteUser
 } = require("../../database");
 
 const { setNextStatus, generateUser } = require("../user");
@@ -78,41 +77,20 @@ function handleUserAnswer(user, msg) {
       });
     }
     if (user.status === "with-question") {
-      console.log("Answer was ", msg);
+      console.log("Answer was ", msg.text);
       setNextStatus(user);
-      console.log("user: ", user.answers);
       const answer = msg.text;
-      const currentQuestionIndex = user.answers.length - 1;
-      let currentQuestion = user.answers[currentQuestionIndex];
-      console.log(
-        "Текущий вопрос, на который дается ответ",
-        currentQuestionIndex
-      );
+      const currentQuestion = user.answers[user.answers.length - 1];
       const isCorrect = compareAnswer(currentQuestion, answer);
-      console.log("Правильный ли ответ?", isCorrect);
-      currentQuestion = {
-        ...currentQuestion,
-        isCorrect,
-        answeredAt: msg.date
-      };
-      console.log("Обновили ответ ", user.answers[currentQuestionIndex]);
-      console.log("Обновили ответ ", user);
+      // Так как не обновляется значение объекта в массиве, приходится делать это отдельно
+      // Далее пользователь обновляется для изменения статуса
       updateUserAnswer(currentQuestion, {
         isCorrect,
         answeredAt: msg.date
       })
         .then(_ => {
-          console.log("Ответ успешно обновлен");
           updateUser(user)
             .then(_ => {
-              getAllUsers()
-                .then(users => {
-                  console.log(
-                    "Проверяем что пользователь обновился",
-                    users[0].answers
-                  );
-                })
-                .catch(err => console.log(err));
               resolve({
                 id: userId,
                 msg: `Спасибо...ждите следующий вопрос!`
