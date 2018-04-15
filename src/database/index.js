@@ -6,6 +6,7 @@ const DB_NAME = config.get("mongo.dbName");
 
 const Question = require("./models/question");
 const User = require("./models/user");
+const Category = require("./models/category");
 
 const { save, find, remove, updateArrayValue } = require("./dao/index");
 
@@ -77,6 +78,18 @@ function deleteUser(id) {
   return remove(User, { id });
 }
 
+function getAllCategories() {
+  return find(Category);
+}
+
+function createCategory(data) {
+  return save(new Category(data));
+}
+
+function deleteCategory(id) {
+  return remove(Category, { id });
+}
+
 module.exports = {
   initQuestions,
   connect,
@@ -86,5 +99,8 @@ module.exports = {
   updateUser,
   updateUserAnswer,
   createUser,
-  getUserById
+  getUserById,
+  getAllCategories,
+  createCategory,
+  deleteCategory
 };
