@@ -13,7 +13,7 @@ module.exports = function(app) {
   });
 
   //TODO implement
-  app.route("/statistic").get((req, res) => {
+  app.route("/gamers").get((req, res) => {
     getAllUsers().then(users => res.send(users));
   });
 };

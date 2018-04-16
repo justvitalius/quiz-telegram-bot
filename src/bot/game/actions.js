@@ -1,5 +1,6 @@
 const {
   updateUser,
+  updateUserAnswer,
   createUser,
   getUserById,
   deleteUser
@@ -78,18 +79,30 @@ function handleUserAnswer(user, msg) {
     if (user.status === "with-question") {
       console.log("Answer was ", msg.text);
       setNextStatus(user);
-      console.log("user: ", user.answers);
       const answer = msg.text;
-      const isCorrectAnswer = compareAnswer(
-        user.answers[user.answers.length - 1],
-        answer
-      );
-      updateUser(user)
+      const currentQuestion = user.answers[user.answers.length - 1];
+      const isCorrect = compareAnswer(currentQuestion, answer);
+      // Так как не обновляется значение объекта в массиве, приходится делать это отдельно
+      // Далее пользователь обновляется для изменения статуса
+      updateUserAnswer(currentQuestion, {
+        isCorrect,
+        answeredAt: msg.date
+      })
         .then(_ => {
-          resolve({
-            id: userId,
-            msg: `Спасибо...ждите следующий вопрос!`
-          });
+          updateUser(user)
+            .then(_ => {
+              resolve({
+                id: userId,
+                msg: `Спасибо...ждите следующий вопрос!`
+              });
+            })
+            .catch(err => {
+              console.log(err);
+              reject({
+                id: userId,
+                msg: "Произошла ошибка на этапе выдачи вопросов"
+              });
+            });
         })
         .catch(err => {
           console.log(err);
@@ -107,7 +120,7 @@ function startQuiz(msg) {
   console.log("start");
   return new Promise((resolve, reject) => {
     const newUser = generateUser({
-      chatId: userId,
+      telegramId: userId,
       id: userId,
       username: username,
       fio: `${lastName} ${firstName}`

@@ -3,9 +3,10 @@ module.exports = {
 };
 
 function renderQuestion({ question, options = [] }) {
+  //Прибавляем единицу к номеру варианта ответа, чтобы нумерация была с 1
   return `
 <pre>${question}</pre>\n
-${options.map((item, i) => renderOption(item, i)).join("\n")}
+${options.map((item, i) => renderOption(item, i + 1)).join("\n")}
   `;
 }
 
