@@ -40,13 +40,14 @@ bot.onText(/\/start/, msg => {
     .catch(({ id, msg }) => bot.sendMessage(id, msg));
 });
 
-bot.onText(/\w+/, msg => {
-  console.log("Income message", msg.text);
-  checkForExistingUser(msg)
-    .then(user => handleUserAnswer(user, msg))
-    .then(({ id, msg }) => bot.sendMessage(id, msg))
-    .catch(({ id, msg }) => bot.sendMessage(id, msg));
-});
+// TODO: Вместо этого используется on callback_query
+// bot.onText(/\w+/, msg => {
+//   console.log("Income message", msg);
+//   checkForExistingUser(msg)
+//     .then(user => handleUserAnswer(user, msg))
+//     .then(({ id, msg }) => bot.sendMessage(id, msg))
+//     .catch(({ id, msg }) => bot.sendMessage(id, msg));
+// });
 
 setInterval(() => {
   processWaitingUsers()
@@ -55,7 +56,9 @@ setInterval(() => {
         bot.sendMessage(id, renderQuestion(msg), {
           parse_mode: "HTML",
           reply_markup: {
-            keyboard: replies.map((text, i) => [{ text }]),
+            inline_keyboard: replies.map((text, i) => [
+              { text, callback_data: i }
+            ]),
             one_time_keyboard: true
           }
         })
@@ -63,3 +66,21 @@ setInterval(() => {
     )
     .catch(console.log);
 }, 2000);
+
+bot.on("callback_query", callbackQuery => {
+  // TODO: убрать этот ужас. И сделать чистую функцию, которая парсит msg и передает в другие функции
+  const msg = callbackQuery.message;
+  msg.text = callbackQuery.data;
+  msg.from = callbackQuery.from;
+  console.log(msg);
+
+  checkForExistingUser(msg)
+    .then(user => handleUserAnswer(user, msg))
+    .then(({ id, msg }) => bot.sendMessage(id, msg))
+    .catch(({ id, msg }) => bot.sendMessage(id, msg));
+  // .catch(console.log);
+});
+
+bot.on("polling_error", error => {
+  console.log(error); // => 'EFATAL'
+});
