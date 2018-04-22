@@ -1,4 +1,4 @@
-const { getAllUsers } = require("../database");
+const { getConvertedUsers, getConvertedCategories } = require("./convertor");
 
 module.exports = function(app) {
   app.all("/*", function(req, res, next) {
@@ -7,13 +7,11 @@ module.exports = function(app) {
     next();
   });
 
-  //TODO implement
   app.route("/categories").get((req, res) => {
-    res.send([{}]);
+    getConvertedCategories().then(categories => res.send(categories));
   });
 
-  //TODO implement
   app.route("/gamers").get((req, res) => {
-    getAllUsers().then(users => res.send(users));
+    getConvertedUsers().then(users => res.send(users));
   });
 };
