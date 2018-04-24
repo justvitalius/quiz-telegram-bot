@@ -129,7 +129,9 @@ describe("Пайпы для обработки пользователя по р�
           expect(pipe().gamer.status).toEqual(WITH_QUESTIONS_STATUS);
         });
         it("Добавляет к пользователю вопрос", () => {
-          expect(pipe().gamer.answers[0]).toEqual(attachedQuestion);
+          expect(pipe().gamer.answers[0].questionnaireId).toEqual(
+            attachedQuestion._id.toString()
+          );
         });
         it("Генерирует сообщение", () => {
           expect(pipe().message.msg).toEqual(jasmine.any(String));

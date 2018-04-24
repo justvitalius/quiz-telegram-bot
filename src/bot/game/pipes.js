@@ -1,6 +1,7 @@
 const R = require("ramda");
 
 const { WITH_QUESTIONS_STATUS } = require("../user");
+const { makeGamerAnswer } = require("../user/answers");
 
 module.exports = {
   processNoQuestionnaireForGamer,
@@ -33,12 +34,15 @@ function processHasQuestionnaireForGamer(questionnaire = {}) {
       return Object.assign({}, payload, {
         gamer: Object.assign(gamer, {
           status: WITH_QUESTIONS_STATUS,
-          answers: gamer.answers.concat(questionnaire)
+          answers: gamer.answers.concat(makeGamerAnswer(questionnaire))
         }),
         message: {
           id: gamer.telegramId,
           msg: questionnaire.title,
-          replies: questionnaire.options
+          replies: questionnaire.options.map(v => ({
+            id: questionnaire._id,
+            value: v
+          }))
         }
       });
     }

@@ -63,13 +63,16 @@ function updateUser(user) {
   return save(user);
 }
 
-function updateUserAnswer(answer, updatedFields) {
+// @param принимает объект результата makeGamerAnswer
+function updateUserAnswer(newAnswer) {
   return updateArrayValue(
     User,
-    { "answers._id": answer._id },
+    { "answers.questionnaireId": newAnswer.questionnaireId },
     {
-      "answers.$.answer.isCorrect": updatedFields.isCorrect,
-      "answers.$.answer.answeredAt": updatedFields.answeredAt
+      "answers.$.isCorrect": newAnswer.isCorrect,
+      "answers.$.value": newAnswer.value,
+      "answers.$.answeredAt": newAnswer.answeredAt,
+      "answers.$.answered": newAnswer.answered
     }
   );
 }
