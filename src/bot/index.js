@@ -52,17 +52,18 @@ bot.onText(/\/start/, msg => {
 setInterval(() => {
   processWaitingUsers()
     .then(messages =>
-      messages.map(({ id, msg, replies }) =>
+      messages.map(({ id, msg, replies }) => {
+        // TODO: пока не удалось сериализовать объект и передать его в кнопку. Поэтому вот так странно создаем callback_data
+        const keyboard = replies.map((reply, i) => [
+          { text: reply.value, callback_data: `${reply.id}--${i}` }
+        ]);
         bot.sendMessage(id, renderQuestion(msg), {
           parse_mode: "HTML",
           reply_markup: {
-            inline_keyboard: replies.map((text, i) => [
-              { text, callback_data: i }
-            ]),
-            one_time_keyboard: true
+            inline_keyboard: keyboard
           }
-        })
-      )
+        });
+      })
     )
     .catch(console.log);
 }, 2000);

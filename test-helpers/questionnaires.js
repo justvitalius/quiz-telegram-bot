@@ -23,7 +23,7 @@ function generateQuestionnaires(count = 0, categories = []) {
 function generateQuestionnaire(options) {
   return Object.assign(
     {
-      id: Date.now(),
+      _id: Date.now(),
       title: faker.lorem.sentence(),
       category: 0,
       options: ["incorrect", "correct", "incorrect", "incorrect"],

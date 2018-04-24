@@ -1,4 +1,5 @@
 const R = require("ramda");
+const { makeGamerAnswer } = require("../user/answers");
 
 const {
   updateUser,
@@ -9,6 +10,8 @@ const {
   getAllUsers,
   getAllQuestionnaires
 } = require("../../database");
+
+const Question = require("../../database/models/question");
 
 const { generateUser, filterWaitingUsers, setNextStatus } = require("../user");
 const compareAnswer = require("../compare-answer");
@@ -95,21 +98,39 @@ function handleUserAnswer(user, msg) {
       console.log("Answer was ", msg.text);
       setNextStatus(user);
       const answer = msg.text;
-      const currentQuestion = user.answers[user.answers.length - 1];
-      const isCorrect = compareAnswer(currentQuestion, answer);
-      // Так как не обновляется значение объекта в массиве, приходится делать это отдельно
-      // Далее пользователь обновляется для изменения статуса
-      updateUserAnswer(currentQuestion, {
-        isCorrect,
-        answeredAt: msg.date
-      })
-        .then(_ => {
-          updateUser(user)
+      const questionId = answer.match(/(\w+)--/)[1];
+      const answerIndex = answer.match(/--(\d+)/)[1];
+      // const checkedQuestionId = (user.answers.filter( ({ questionnaireId }) => questionnaireId == questionId )[0] || {}).questionnaireId
+      const checkedQuestionId = R.prop(
+        "questionnaireId",
+        R.find(R.propEq("questionnaireId", questionId))(user.answers)
+      );
+      Question.findById(checkedQuestionId)
+        .then(questionnaire => {
+          const isCorrect = compareAnswer(questionnaire, answerIndex);
+          const newAnswer = makeGamerAnswer(
+            questionnaire,
+            answerIndex,
+            isCorrect
+          );
+          // Так как не обновляется значение объекта в массиве, приходится делать это отдельно
+          // Далее пользователь обновляется для изменения статуса
+          updateUserAnswer(newAnswer)
             .then(_ => {
-              resolve({
-                id: telegramId,
-                msg: `Спасибо...ждите следующий вопрос!`
-              });
+              updateUser(user)
+                .then(_ => {
+                  resolve({
+                    id: telegramId,
+                    msg: `Спасибо...ждите следующий вопрос!`
+                  });
+                })
+                .catch(err => {
+                  console.log(err);
+                  reject({
+                    id: telegramId,
+                    msg: "Произошла ошибка на этапе выдачи вопросов"
+                  });
+                });
             })
             .catch(err => {
               console.log(err);
@@ -119,13 +140,12 @@ function handleUserAnswer(user, msg) {
               });
             });
         })
-        .catch(err => {
-          console.log(err);
+        .catch(_ =>
           reject({
             id: telegramId,
-            msg: "Произошла ошибка на этапе выдачи вопросов"
-          });
-        });
+            msg: "Произошла ошибка на этапе обработки ответа"
+          })
+        );
     }
   });
 }

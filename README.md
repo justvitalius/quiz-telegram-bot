@@ -57,7 +57,7 @@ new -> waiting-questions -> with-question -> end
 docker pull mongo
 
 // Старт монги
-docker run -d -p 27017:27017 mongo
+docker run -d -p 27017:27017 -v ~/mongo_data:/data/db mongo
 ```
 
 ## Redis
