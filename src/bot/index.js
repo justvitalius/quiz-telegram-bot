@@ -55,8 +55,10 @@ setInterval(() => {
       messages.map(({ id, msg, replies }) => {
         // TODO: пока не удалось сериализовать объект и передать его в кнопку. Поэтому вот так странно создаем callback_data
         if (replies) {
+          //Добавлякм единицу к варианту ответа, чтобы нумерация была с 1,
+          // а не с нуля, иначе ни один ответ на который отвечает пользователь не считается правильным
           const keyboard = replies.map((reply, i) => [
-            { text: reply.value, callback_data: `${reply.id}--${i}` }
+            { text: reply.value, callback_data: `${reply.id}--${i + 1}` }
           ]);
           bot.sendMessage(id, renderQuestion(msg), {
             parse_mode: "HTML",
