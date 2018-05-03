@@ -87,16 +87,21 @@ if (ops.filename) {
                 console.log(`Start migrate ${categories.length} categories.\n`);
                 Category.remove().exec();
                 return Promise.all(
-                  categories.map(category =>
-                    createCategory({
-                      title: category,
-                      numberOfRequiredAnswers: Math.floor(
-                        calcByCategory(category) / 3
-                      )
-                    }).then(cat =>
-                      console.log(`Category ${cat.title} imported`)
-                    )
-                  )
+                  categories.map(category => {
+                    //fixed bug, if thereis't category in data file
+                    if (category) {
+                      return createCategory({
+                        title: category,
+                        numberOfRequiredAnswers: Math.floor(
+                          calcByCategory(category) / 3
+                        )
+                      })
+                        .then(cat =>
+                          console.log(`Category ${cat.title} imported`)
+                        )
+                        .catch(console.log);
+                    }
+                  })
                 ).catch(Promise.reject);
               }
             })
