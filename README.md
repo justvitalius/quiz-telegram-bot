@@ -119,6 +119,22 @@ https://d39febbf.ngrok.io
 При деплое в ansible в config файле, на основе которого создается файл prealpha.js, production.js - vitaly_test_config.js например
 в репозитории https://bitbucket.org/sbertechspb/configs/src требуется добавить также поле url
 
+Пример файла development.js, при котором происходит успешный старт
+
+```
+module.exports = {
+  telegramBotToken: "588143760:AAEjsGv8eirVN2CAmnBRQtIKsqrycWQCwXw",
+  bot_server: {
+    port: 8443
+  },
+  url: "https://172.104.134.141:8443"
+};
+```
+
+Для старта через webhook на сервере в папке bot в корне должна лежать папка certs с приватным ключом и сертификатом, созданными через
+openssl genrsa -out webhook_pkey.pem 2048
+openssl req -new -x509 -days 3650 -key webhook_pkey.pem -out webhook_cert.pem
+
 ## Модуль статистики
 
 https://github.com/w3dip/statistics-ui
