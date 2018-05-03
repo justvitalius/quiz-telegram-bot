@@ -55,7 +55,7 @@ setInterval(() => {
       messages.map(({ id, msg, replies }) => {
         // TODO: пока не удалось сериализовать объект и передать его в кнопку. Поэтому вот так странно создаем callback_data
         const keyboard = replies.map((reply, i) => [
-          { text: reply.value, callback_data: `${reply.id}--${i}` }
+          { text: reply.value, callback_data: `${reply.id}--${i+1}` }
         ]);
         bot.sendMessage(id, renderQuestion(msg), {
           parse_mode: "HTML",
@@ -79,7 +79,7 @@ bot.on("callback_query", callbackQuery => {
     .then(user => handleUserAnswer(user, msg))
     .then(({ id, msg }) => bot.sendMessage(id, msg))
     .catch(({ id, msg }) => bot.sendMessage(id, msg));
-  // .catch(console.log);
+    .catch(console.log);
 });
 
 bot.on("polling_error", error => {

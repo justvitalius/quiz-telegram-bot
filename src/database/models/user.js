@@ -5,7 +5,15 @@ const userSchema = new mongoose.Schema({
   id: String,
   username: String,
   fio: String,
-  answers: [],
+  answers: [
+    {
+      questionnaireId: String,
+      isCorrect: Boolean,
+      value: String,
+      answeredAt: Date,
+      answered: Boolean
+    }
+  ],
   status: String
 });
 

@@ -140,12 +140,13 @@ function handleUserAnswer(user, msg) {
               });
             });
         })
-        .catch(_ =>
+        .catch(err => {
+          console.log(err);
           reject({
             id: telegramId,
             msg: "Произошла ошибка на этапе обработки ответа"
-          })
-        );
+          });
+        });
     }
   });
 }
