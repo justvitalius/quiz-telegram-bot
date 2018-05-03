@@ -5,8 +5,9 @@ module.exports = {
 };
 
 function makeGamerAnswer(questionnaire = {}, value, isCorrect) {
+  const { _id = {} } = questionnaire;
   return {
-    questionnaireId: R.compose(R.toString, R.propOr({}, "_id"))(questionnaire),
+    questionnaireId: _id.toString(),
     category: questionnaire.category,
     answeredAt: new Date(),
     answered: value != undefined && isCorrect != undefined,

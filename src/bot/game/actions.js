@@ -26,6 +26,8 @@ const {
   generatePayload
 } = require("./pipes");
 
+const { FINISH_STATUS } = require("../user");
+
 module.exports = {
   destroyUserProfile,
   startQuiz,
@@ -187,12 +189,20 @@ function getQuestinnairesForWaitingGamers() {
     )
     .then(({ gamers = [], questionnaires = [] }) => {
       return Promise.all(
-        gamers.map(gamer => getQuestionnaireForGamer(gamer, questionnaires))
+        gamers
+          .filter(gamer => gamer.status !== FINISH_STATUS)
+          .map(gamer => getQuestionnaireForGamer(gamer, questionnaires))
       );
     });
 }
 
 function getQuestionnaireForGamer(gamer, questionnaires) {
+  const { answers = [] } = gamer;
+  questionnaires = R.filter(questionnaire => {
+    const { _id = {} } = questionnaire;
+    return !R.find(R.propEq("questionnaireId", _id.toString()))(answers);
+  })(questionnaires);
+
   const questionnaire = getQuestion(
     questionnaires,
     ["javascript"],
