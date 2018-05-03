@@ -1,23 +1,26 @@
 const TelegramBot = require("node-telegram-bot-api");
 const config = require("config");
 const TOKEN = config.get("telegramBotToken");
+const url = config.get("url");
+const port = config.get("bot_server.port");
 
-const bot = new TelegramBot(TOKEN, { polling: true });
+const options = {
+  webHook: {
+    port,
+    key: `${__dirname}/../../certs/webhook_pkey.pem`,
+    cert: `${__dirname}/../../certs/webhook_cert.pem`
+  }
+};
 
-const http = require("http");
-http
-  .createServer((req, res) => res.end("ok"))
-  .listen(config.get("bot_server.port"));
+const bot = new TelegramBot(TOKEN, options);
+
+bot.setWebHook(`${url}/bot${TOKEN}`, {
+  certificate: options.webHook.cert
+});
 
 const getQuestion = require("./questionnaires/index");
-const { setNextStatus } = require("./user");
 const { renderQuestion } = require("./messages");
-const {
-  initQuestions,
-  getAllQuestionnaires,
-  getAllUsers,
-  updateUser
-} = require("../database");
+const { initQuestions } = require("../database");
 
 const {
   destroyUserProfile,
@@ -39,15 +42,6 @@ bot.onText(/\/start/, msg => {
     .then(({ id, msg }) => bot.sendMessage(id, msg))
     .catch(({ id, msg }) => bot.sendMessage(id, msg));
 });
-
-// TODO: Вместо этого используется on callback_query
-// bot.onText(/\w+/, msg => {
-//   console.log("Income message", msg);
-//   checkForExistingUser(msg)
-//     .then(user => handleUserAnswer(user, msg))
-//     .then(({ id, msg }) => bot.sendMessage(id, msg))
-//     .catch(({ id, msg }) => bot.sendMessage(id, msg));
-// });
 
 setInterval(() => {
   processWaitingUsers()
@@ -85,9 +79,8 @@ bot.on("callback_query", callbackQuery => {
     .then(user => handleUserAnswer(user, msg))
     .then(({ id, msg }) => bot.sendMessage(id, msg))
     .catch(({ id, msg }) => bot.sendMessage(id, msg));
-  // .catch(console.log);
 });
 
-bot.on("polling_error", error => {
-  console.log(error); // => 'EFATAL'
+bot.on("webhook_error", error => {
+  console.log(error.code); // => 'EPARSE'
 });

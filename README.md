@@ -102,6 +102,23 @@ docker run -d -p 6379:6379 redis
 
 Для продакшн режима созданы похожие команды `npm run bot:production` и `npm run api:production`.
 
+Чтобы стартовало приложение в режиме с испольхованием webhook необходимо локально:
+
+1.  Скачать утилиту https://ngrok.com/download - это локальный ssl туннель
+    Зарегистрироваться, прописать authtoken, стартовать ngrok
+    Из полученного при старте вывода скопировать ссылку вида
+
+```
+https://d39febbf.ngrok.io
+```
+
+2.  В локальном файле конфигурации в папке сщташп (development.js, prealpha.js, production.js, default.js - любом, какой есть)
+    прописать в поле url полученную ссылку
+3.  Стартовать бота
+
+При деплое в ansible в config файле, на основе которого создается файл prealpha.js, production.js - vitaly_test_config.js например
+в репозитории https://bitbucket.org/sbertechspb/configs/src требуется добавить также поле url
+
 ## Модуль статистики
 
 https://github.com/w3dip/statistics-ui

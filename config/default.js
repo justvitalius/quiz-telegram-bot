@@ -1,5 +1,6 @@
 module.exports = {
   telegramBotToken: "<insert token into development.json>",
+  url: "<insert server https url here>",
   mongo: {
     host: "mongodb://localhost:27017/",
     dbName: "quiz_db"
