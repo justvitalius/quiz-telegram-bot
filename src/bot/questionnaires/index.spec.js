@@ -1,77 +1,149 @@
-const { getRandomQuestionnaire } = require("./helpers");
-const getQuestion = require("./index");
+const R = require("ramda");
 const {
   generateQuestionnaires,
   generateQuestionnaire
 } = require("../../../test-helpers/questionnaires");
 
+const { getQuestion } = require("./index");
+
+const { gamer } = require("../../../test-helpers/gamer");
+const {
+  generateCategories,
+  generateCategory
+} = require("../../../test-helpers/categories");
+
 describe("Опросник подбирает вопрос игроку на основе истории вопросов", () => {
-  describe("На входе общий список вопросов, профайл игрока, задача <выдать вопрос>", () => {
-    const maxCountByType = 2;
-    const categoriesOrder = [0, 1, 2, 3];
-    const questionnaires = generateQuestionnaires(10, categoriesOrder);
-    const userProfile = {
-      answers: []
-    };
-
-    it("Выдает первый вопрос из самых легких", () => {
-      const result = getQuestion(
-        questionnaires,
-        categoriesOrder,
-        maxCountByType,
-        userProfile
-      );
-      expect(result.category).toEqual(categoriesOrder[0]);
+  describe("На входе общий список вопросов, общий список категорий и профайл игрока", () => {
+    describe("Если нет истории ответов в профайле", () => {
+      const userProfile = gamer();
+      const categories = generateCategories(3, 100);
+      it("Выдает любой вопрос из первой категории", () => {
+        const questionnaires = generateQuestionnaires(
+          10,
+          R.pluck("title")(categories)
+        );
+        const question = getQuestion(questionnaires, categories, userProfile);
+        const questionIdsFromFirstCategory = R.compose(
+          R.pluck("_id"),
+          R.filter(R.propEq("category", categories[0].title))
+        )(questionnaires);
+        expect(questionIdsFromFirstCategory.includes(question._id)).toBeTruthy;
+      });
+      it("Если нет вопроса в категории, то выдает вопрос из следующей категории", () => {
+        const questionnaires = [
+          generateQuestionnaire({ category: categories[1].title }),
+          generateQuestionnaire({ category: categories[1].title }),
+          generateQuestionnaire({ category: categories[2].title })
+        ];
+        const question = getQuestion(questionnaires, categories, userProfile);
+        expect(questionnaires.includes(question._id)).toBeTruthy;
+      });
     });
 
-    it("Выдает первый вопрос первой категории, если ответов в ней меньше <maxCountByType>", () => {
-      const updatedUserProfile = Object.assign({}, userProfile, {
-        answers: [generateQuestionnaire({ category: 0 })]
-      });
-      const result = getQuestion(
-        questionnaires,
-        categoriesOrder,
-        maxCountByType,
-        updatedUserProfile
-      );
-      expect(result.category).toEqual(categoriesOrder[0]);
-    });
+    describe("Если есть история отетов в профайле", () => {
+      describe("Если не достигнут лимит по вопросам в данной категории", () => {
+        const categories = generateCategories(3, 100);
+        const gamerExistsQuestion = generateQuestionnaire({
+          category: categories[0].title
+        });
+        const userProfile = gamer({
+          answers: [{ questionnaireId: R.clone(gamerExistsQuestion._id) }]
+        });
 
-    it("После <maxCountByType> легких вопросов выдает вопрос следующей сложности", () => {
-      const updatedUserProfile = Object.assign({}, userProfile, {
-        answers: [
-          generateQuestionnaire({ category: 0 }),
-          generateQuestionnaire({ category: 0 })
-        ]
+        it("Не выдает один и тот же вопрос повторно", () => {
+          const questionnaires = [
+            gamerExistsQuestion,
+            generateQuestionnaire({ category: gamerExistsQuestion.category })
+          ];
+
+          for (let i = 0; i < 100; i++) {
+            expect(
+              getQuestion(questionnaires, categories, userProfile)._id
+            ).not.toEqual(gamerExistsQuestion._id);
+          }
+        });
+        it("Если нет уникальных вопросов в этой категории, то переходит к следующей категории", () => {
+          const questionnaires = [
+            gamerExistsQuestion,
+            generateQuestionnaire({ category: categories[1].title }),
+            generateQuestionnaire({ category: categories[1].title }),
+            generateQuestionnaire({ category: categories[2].title })
+          ];
+          const question = getQuestion(questionnaires, categories, userProfile);
+          expect(question.category).not.toEqual(
+            userProfile.answers[0].category
+          );
+
+          const questionIdsFromExpectedCategory = R.compose(
+            R.pluck("_id"),
+            R.filter(R.propEq("category", categories[1]))
+          )(questionnaires);
+          expect(questionIdsFromExpectedCategory.includes(question._id))
+            .toBeTruthy;
+        });
       });
-      const result = getQuestion(
-        questionnaires,
-        categoriesOrder,
-        maxCountByType,
-        updatedUserProfile
-      );
-      expect(result.category).toEqual(categoriesOrder[1]);
-    });
-    it("Пройдя по N вопросов всех сложностей выдает пустой вопрос", () => {
-      const updatedUserProfile = Object.assign({}, userProfile, {
-        answers: [
-          generateQuestionnaire({ category: 0 }),
-          generateQuestionnaire({ category: 0 }),
-          generateQuestionnaire({ category: 1 }),
-          generateQuestionnaire({ category: 1 }),
-          generateQuestionnaire({ category: 2 }),
-          generateQuestionnaire({ category: 2 }),
-          generateQuestionnaire({ category: 3 }),
-          generateQuestionnaire({ category: 3 })
-        ]
+      describe("Если достигнут лимит по вопросам в данной категории", () => {
+        const categories = [
+          generateCategory({ numberOfRequiredAnswers: 1 }),
+          generateCategory({ numberOfRequiredAnswers: 2 }),
+          generateCategory({ numberOfRequiredAnswers: 3 })
+        ];
+        const questionnaires = [
+          generateQuestionnaire({ category: categories[0].title }),
+          generateQuestionnaire({ category: categories[2].title }),
+          generateQuestionnaire({ category: categories[2].title })
+        ];
+
+        it("Выдает вопрос из следующей категории", () => {
+          const userProfile = gamer({
+            answers: [{ questionnaireId: R.clone(questionnaires[0]._id) }]
+          });
+          expect(
+            getQuestion(questionnaires, categories, userProfile).category
+          ).not.toEqual(userProfile.answers[0].category);
+        });
+        it("Если в следующей категории нет вопросов, то переходит дальше", () => {
+          const userProfile = gamer({
+            answers: [{ questionnaireId: R.clone(questionnaires[0]._id) }]
+          });
+          for (let i = 0; i < 100; i++) {
+            expect(
+              getQuestion(questionnaires, categories, userProfile).category
+            ).toEqual(categories[2].title);
+          }
+        });
       });
-      const result = getQuestion(
-        questionnaires,
-        categoriesOrder,
-        maxCountByType,
-        updatedUserProfile
-      );
-      expect(result).toBeNull();
+
+      describe("Если достиг лимита по всем вопросам и категориям", () => {
+        it("Возвращает null", () => {
+          const categories = [
+            generateCategory({ numberOfRequiredAnswers: 1 }),
+            generateCategory({ numberOfRequiredAnswers: 2 }),
+            generateCategory({ numberOfRequiredAnswers: 1 })
+          ];
+          const questionnaires = [
+            generateQuestionnaire({ category: categories[0].title }),
+            generateQuestionnaire({ category: categories[1].title }),
+            generateQuestionnaire({ category: categories[1].title }),
+            generateQuestionnaire({ category: categories[1].title }),
+            generateQuestionnaire({ category: categories[1].title }),
+            generateQuestionnaire({ category: categories[2].title }),
+            generateQuestionnaire({ category: categories[2].title }),
+            generateQuestionnaire({ category: categories[2].title })
+          ];
+          const userProfile = gamer({
+            answers: [
+              { questionnaireId: R.clone(questionnaires[0]._id) },
+              { questionnaireId: R.clone(questionnaires[1]._id) },
+              { questionnaireId: R.clone(questionnaires[2]._id) },
+              { questionnaireId: R.clone(questionnaires[3]._id) }
+            ]
+          });
+          expect(
+            getQuestion(questionnaires, categories, userProfile)
+          ).toBeNull();
+        });
+      });
     });
   });
 });

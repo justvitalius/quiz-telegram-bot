@@ -11,17 +11,12 @@ const {
   processUserEndStatus,
   processUserNewStatus,
   processNoQuestionnaireForGamer,
-  processHasQuestionnaireForGamer
-} = require("./actions");
+  processHasQuestionnaireForGamer,
+  generatePayload
+} = require("./pipes");
 
 describe("Пайпы для обработки пользователя по различным сценариям", () => {
   describe("Действие над пользователем возращает новое состояние пользователя и сообщение.", () => {
-    const pipePayload = {
-      gamer: gamer({ status: WAIT_QUESTION_STATUS }),
-      message: { id: faker.random.uuid() }
-    };
-    const generateUserAndPayload = jest.fn().mockReturnValue(pipePayload);
-
     describe("Можно композировать действия для выстраивания последовательности изменений.", () => {
       const newUser = {
         status: "new",
@@ -96,24 +91,28 @@ describe("Пайпы для обработки пользователя по р�
     describe("processNoQuestionnaireForGamer", () => {
       describe("В случание наличия вопроса", () => {
         it("Ничего не делает и отдает payload", () => {
+          const userProfile = gamer({ status: WAIT_QUESTION_STATUS });
+          const expectedPayload = generatePayload(userProfile);
           const pipe = R.compose(
             processNoQuestionnaireForGamer(questionnaire()),
-            generateUserAndPayload
+            generatePayload
           );
 
-          expect(pipe()).toMatchObject(pipePayload);
+          expect(pipe(userProfile)).toMatchObject(expectedPayload);
         });
       });
 
       describe("В случание отсутствия вопроса", () => {
         it("Генерирует текстовое сообщение", () => {
+          const userProfile = gamer({ status: WAIT_QUESTION_STATUS });
+          const expectedPayload = generatePayload(userProfile);
           const pipe = R.compose(
             processNoQuestionnaireForGamer(null),
-            generateUserAndPayload
+            generatePayload
           );
 
-          expect(pipe()).not.toEqual(pipePayload);
-          expect(pipe().message.msg).not.toBeNull();
+          expect(pipe(userProfile)).not.toEqual(expectedPayload);
+          expect(pipe(userProfile).message.msg).not.toBeNull();
         });
       });
     });
@@ -121,34 +120,44 @@ describe("Пайпы для обработки пользователя по р�
     describe("processHasQuestionnaireForGamer", () => {
       describe("В случание наличия вопроса", () => {
         const attachedQuestion = questionnaire();
+        const userProfile = gamer({ status: WAIT_QUESTION_STATUS });
+        const expectedPayload = generatePayload(userProfile);
         const pipe = R.compose(
           processHasQuestionnaireForGamer(attachedQuestion),
-          generateUserAndPayload
+          generatePayload
         );
         it("Меняет статус пользователя", () => {
-          expect(pipe().gamer.status).toEqual(WITH_QUESTIONS_STATUS);
+          expect(pipe(userProfile).gamer.status).toEqual(WITH_QUESTIONS_STATUS);
         });
         it("Добавляет к пользователю вопрос", () => {
-          expect(pipe().gamer.answers[0].questionnaireId).toEqual(
-            attachedQuestion._id.toString()
+          expect(pipe(userProfile).gamer.answers[0].questionnaireId).toEqual(
+            attachedQuestion._id
           );
         });
         it("Генерирует сообщение", () => {
-          expect(pipe().message.msg).toEqual(jasmine.any(String));
-          expect(pipe().message.id).toEqual(pipePayload.gamer.telegramId);
-          expect(pipe().message.id).not.toEqual(pipePayload.message.id);
-          expect(pipe().message.msg).not.toEqual(pipePayload.message.msg);
+          expect(pipe(userProfile).message.msg).toEqual(jasmine.any(String));
+          expect(pipe(userProfile).message.id).toEqual(
+            expectedPayload.gamer.telegramId
+          );
+          expect(pipe(userProfile).message.id).not.toEqual(
+            expectedPayload.message.id
+          );
+          expect(pipe(userProfile).message.msg).not.toEqual(
+            expectedPayload.message.msg
+          );
         });
       });
 
       describe("В случание отсутствия вопроса", () => {
         it("Возвращает payload", () => {
+          const userProfile = gamer({ status: WAIT_QUESTION_STATUS });
+          const expectedPayload = generatePayload(userProfile);
           const pipe = R.compose(
             processHasQuestionnaireForGamer(null),
-            generateUserAndPayload
+            generatePayload
           );
 
-          expect(pipe()).toMatchObject(pipePayload);
+          expect(pipe(userProfile)).toMatchObject(expectedPayload);
         });
       });
     });

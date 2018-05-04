@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   fio: String,
   answers: [
     {
-      questionnaireId: String,
+      questionnaireId: mongoose.Schema.Types.ObjectId,
       isCorrect: Boolean,
       value: String,
       answeredAt: Date,

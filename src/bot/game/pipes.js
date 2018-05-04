@@ -27,7 +27,7 @@ function processNoQuestionnaireForGamer(questionnaire = {}) {
   };
 }
 
-function processHasQuestionnaireForGamer(questionnaire = {}) {
+function processHasQuestionnaireForGamer(questionnaire = { options: [] }) {
   return payload => {
     const { gamer = { answers: [] }, message = {} } = payload;
     if (questionnaire) {
