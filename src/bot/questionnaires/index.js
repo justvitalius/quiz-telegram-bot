@@ -1,39 +1,49 @@
+const R = require("ramda");
 const {
   getRandomQuestionnaire,
-  getQuestionnairesByCategory
+  getQuestionnairesByCategory,
+  questionnairesByAnswered,
+  countOfAnswersByCategoryMap,
+  countOfNeedsAnswersByCategoryMap,
+  allowableQuestionnairesByAnswers
 } = require("./helpers");
 
-module.exports = getQuestion = (
-  questionnaires = [],
-  categoriesOrder = [],
-  maxCountByType = 0,
-  userProfile = {
-    answers: []
-  }
-) => {
-  const answers = userProfile.answers;
-  const answersCount = answers.length;
+module.exports = {
+  getQuestion
+};
 
-  if (answersCount === 0) {
-    return getRandomQuestionnaire(
-      getQuestionnairesByCategory(questionnaires, categoriesOrder[0])
-    );
-  }
+function getQuestion(questionnaires = [], categories = [], gamer = {}) {
+  const answers = gamer.answers;
+  const allowableQuestionnaires = allowableQuestionnairesByAnswers(
+    questionnaires,
+    answers
+  );
+  const answered = questionnairesByAnswered(questionnaires, answers);
+  const countFromAnsweredMap = countOfAnswersByCategoryMap(answered);
+  const countOfNeedsMap = countOfNeedsAnswersByCategoryMap(categories);
 
-  if (answersCount >= categoriesOrder.length * maxCountByType) {
+  let sumAnswersFromMap = R.compose(R.sum, Array.from);
+
+  let sumOfNeedsAnswers = sumAnswersFromMap(countOfNeedsMap.values());
+
+  let sumOfAnswered = sumAnswersFromMap(countFromAnsweredMap.values());
+
+  if (sumOfAnswered >= sumOfNeedsAnswers) {
     return null;
   }
 
-  const countAnswerInLastType = answersCount % maxCountByType;
-  const lastAnswer = answers[answersCount - 1];
-  let nextQuestionnaireType = lastAnswer.category;
+  for (let categoryInfo of countOfNeedsMap) {
+    const numOfAnsweredByCategory = countFromAnsweredMap.get(categoryInfo[0]);
+    if (!numOfAnsweredByCategory || numOfAnsweredByCategory < categoryInfo[1]) {
+      const question = getRandomQuestionnaire(
+        getQuestionnairesByCategory(allowableQuestionnaires, categoryInfo[0])
+      );
 
-  if (countAnswerInLastType === 0) {
-    nextQuestionnaireType =
-      categoriesOrder[categoriesOrder.indexOf(lastAnswer.category) + 1];
+      if (question) {
+        return question;
+      }
+    }
   }
 
-  return getRandomQuestionnaire(
-    getQuestionnairesByCategory(questionnaires, nextQuestionnaireType)
-  );
-};
+  return null;
+}

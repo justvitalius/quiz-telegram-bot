@@ -1,5 +1,6 @@
 const R = require("ramda");
 const { makeGamerAnswer } = require("../user/answers");
+const { getQuestion } = require("../questionnaires");
 
 const {
   updateUser,
@@ -8,7 +9,8 @@ const {
   getUserById,
   deleteUser,
   getAllUsers,
-  getAllQuestionnaires
+  getAllQuestionnaires,
+  getAllCategories
 } = require("../../database");
 
 const Question = require("../../database/models/question");
@@ -100,11 +102,13 @@ function handleUserAnswer(user, msg) {
       const answer = msg.text;
       const questionId = answer.match(/(\w+)--/)[1];
       const answerIndex = answer.match(/--(\d+)/)[1];
-      // const checkedQuestionId = (user.answers.filter( ({ questionnaireId }) => questionnaireId == questionId )[0] || {}).questionnaireId
-      const checkedQuestionId = R.prop(
-        "questionnaireId",
-        R.find(R.propEq("questionnaireId", questionId))(user.answers)
-      );
+
+      const checkedQuestionId = R.compose(
+        R.find(R.equals(questionId)),
+        R.map(R.toString),
+        R.pluck("questionnaireId")
+      )(user.answers);
+
       Question.findById(checkedQuestionId)
         .then(questionnaire => {
           const isCorrect = compareAnswer(questionnaire, answerIndex);
@@ -181,24 +185,28 @@ function startQuiz(msg) {
 }
 
 function getQuestinnairesForWaitingGamers() {
-  return Promise.all([getAllUsers(), getAllQuestionnaires()])
-    .then(R.zipObj(["gamers", "questionnaires"]))
-    .then(result =>
-      Object.assign(result, { gamers: filterWaitingUsers(result.gamers) })
-    )
-    .then(({ gamers = [], questionnaires = [] }) => {
+  return Promise.all([
+    getAllUsers(),
+    getAllQuestionnaires(),
+    getAllCategories()
+  ])
+    .then(R.zipObj(["gamers", "questionnaires", "categories"]))
+    .then(result => {
+      return Object.assign(result, {
+        gamers: filterWaitingUsers(result.gamers)
+      });
+    })
+    .then(({ gamers = [], questionnaires = [], categories = [] }) => {
       return Promise.all(
-        gamers.map(gamer => getQuestionnaireForGamer(gamer, questionnaires))
+        gamers.map(gamer =>
+          getQuestionnaireForGamer(gamer, questionnaires, categories)
+        )
       );
     });
 }
 
-function getQuestionnaireForGamer(gamer, questionnaires) {
-  const questionnaire = getQuestion(
-    questionnaires,
-    ["javascript"],
-    questionnaires.length
-  );
+function getQuestionnaireForGamer(gamer, questionnaires, categories) {
+  const questionnaire = getQuestion(questionnaires, categories, gamer);
   const processGamer = R.compose(
     processHasQuestionnaireForGamer(questionnaire),
     processNoQuestionnaireForGamer(questionnaire),

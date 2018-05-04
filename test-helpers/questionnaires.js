@@ -1,4 +1,5 @@
 const faker = require("faker");
+const Question = require("../src/database/models/question");
 
 module.exports = {
   generateQuestionnaires,
@@ -21,17 +22,17 @@ function generateQuestionnaires(count = 0, categories = []) {
 }
 
 function generateQuestionnaire(options) {
-  return Object.assign(
-    {
-      _id: Date.now(),
-      title: faker.lorem.sentence(),
-      category: 0,
-      options: ["incorrect", "correct", "incorrect", "incorrect"],
-      actived: true,
-      answer: {
-        value: "correct"
-      }
-    },
-    options
+  return new Question(
+    Object.assign(
+      {
+        title: faker.lorem.sentence(),
+        category: 0,
+        options: ["correct", "incorrect", "incorrect", "incorrect"],
+        answer: {
+          value: 0
+        }
+      },
+      options
+    )
   );
 }

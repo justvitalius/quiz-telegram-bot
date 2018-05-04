@@ -9,15 +9,8 @@ http
   .createServer((req, res) => res.end("ok"))
   .listen(config.get("bot_server.port"));
 
-const getQuestion = require("./questionnaires/index");
-const { setNextStatus } = require("./user");
 const { renderQuestion } = require("./messages");
-const {
-  initQuestions,
-  getAllQuestionnaires,
-  getAllUsers,
-  updateUser
-} = require("../database");
+const { initQuestions } = require("../database");
 
 const {
   destroyUserProfile,
@@ -55,7 +48,7 @@ setInterval(() => {
       messages.map(({ id, msg, replies }) => {
         // TODO: пока не удалось сериализовать объект и передать его в кнопку. Поэтому вот так странно создаем callback_data
         const keyboard = replies.map((reply, i) => [
-          { text: reply.value, callback_data: `${reply.id}--${i+1}` }
+          { text: reply.value, callback_data: `${reply.id}--${i + 1}` }
         ]);
         bot.sendMessage(id, renderQuestion(msg), {
           parse_mode: "HTML",
@@ -78,7 +71,7 @@ bot.on("callback_query", callbackQuery => {
   checkForExistingUser(msg)
     .then(user => handleUserAnswer(user, msg))
     .then(({ id, msg }) => bot.sendMessage(id, msg))
-    .catch(({ id, msg }) => bot.sendMessage(id, msg));
+    .catch(({ id, msg }) => bot.sendMessage(id, msg))
     .catch(console.log);
 });
 

@@ -6,6 +6,9 @@
   "directories": {
     "doc": "docs"
   },
+  "engines": {
+    "node": ">=7.5.0 <9.11.1"
+  },
   "scripts": {
     "test": "jest",
     "start": "nodemon ./src/bot/index.js",
