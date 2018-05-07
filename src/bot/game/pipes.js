@@ -1,6 +1,6 @@
 const R = require("ramda");
 
-const { WITH_QUESTIONS_STATUS } = require("../user");
+const { WITH_QUESTIONS_STATUS, FINISH_STATUS } = require("../user");
 const { makeGamerAnswer } = require("../user/answers");
 
 module.exports = {
@@ -13,14 +13,13 @@ module.exports = {
 
 function processNoQuestionnaireForGamer(questionnaire = {}) {
   return payload => {
-    const { user: gamer = {}, message = {} } = payload;
+    const { gamer = {} } = payload;
     if (!questionnaire) {
-      return R.mergeDeepRight(payload, {
-        message: {
-          id: gamer.telegramId,
-          msg:
-            "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
-        }
+      return Object.assign(payload, {
+        message: null,
+        gamer: Object.assign(gamer, {
+          status: FINISH_STATUS
+        })
       });
     }
     return payload;
