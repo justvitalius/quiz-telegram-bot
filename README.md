@@ -36,7 +36,7 @@ new -> waiting-questions -> with-question -> end
         msg, // текст сообщения (вопроса)
         replies // массив возможных ответов (кнопки)
     }
-    gamer: <найденый пользователь в БД>
+    gamer: <найденый пользователь в БД>,
 }
 ```
 
@@ -110,14 +110,7 @@ https://github.com/w3dip/statistics-ui
 
 ## Модель данных
 
-Актуальные User и Questionnaire можно смотреть в `src/database/models`
-
-```
-Category {
-    title: string
-    numberOfNeedAnswers: number
-}
-```
+Актуальные User, Questionnaire и Category можно смотреть в `src/database/models`
 
 При миграции создается модель User, Questionnaire и Category.
 Questionnaires заполняется из файла отдельным скриптом миграции,

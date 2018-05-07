@@ -12,6 +12,8 @@ function generateGamer(opts) {
         telegramId: faker.random.uuid(),
         id: faker.random.uuid(),
         username: faker.internet.userName(),
+        fio: faker.name.firstName(),
+        name: "Игрок для тестов",
         answers: [],
         status: "new"
       },
