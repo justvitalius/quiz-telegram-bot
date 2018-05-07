@@ -1,6 +1,6 @@
 jest.mock("../../database");
 jest.mock("../compare-answer");
-jest.mock("../messages/helpers");
+jest.mock("../messages/parsers");
 
 const R = require("ramda");
 const faker = require("faker");

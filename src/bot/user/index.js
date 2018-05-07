@@ -2,6 +2,7 @@ const NEW_STATUS = "new";
 const WITH_QUESTIONS_STATUS = "with-question";
 const WAIT_QUESTION_STATUS = "wait-question";
 const FINISH_STATUS = "end";
+const DEFAULT_GAMER_NAME = "js-ниндзя";
 
 module.exports = {
   generateUser,
@@ -11,7 +12,8 @@ module.exports = {
   NEW_STATUS,
   WITH_QUESTIONS_STATUS,
   WAIT_QUESTION_STATUS,
-  FINISH_STATUS
+  FINISH_STATUS,
+  DEFAULT_GAMER_NAME
 };
 
 const statuses = [

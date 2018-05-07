@@ -18,7 +18,7 @@ const Question = require("../../database/models/question");
 const { generateUser, filterWaitingUsers, setNextStatus } = require("../user");
 const compareAnswer = require("../compare-answer");
 
-const parseMsg = require("../messages/helpers");
+const { parseMsg } = require("../messages/parsers");
 
 const {
   processNoQuestionnaireForGamer,
@@ -41,7 +41,7 @@ module.exports = {
 };
 
 function destroyUserProfile(msg) {
-  const { userId, telegramId } = parseMsg(msg);
+  const { userId, telegramId, name } = parseMsg(msg);
 
   return new Promise(resolve =>
     deleteUser(userId)
@@ -49,14 +49,14 @@ function destroyUserProfile(msg) {
         console.log("User was deleted, id=", userId);
         resolve({
           id: telegramId,
-          msg: `Профиль пользователя ${msg.from.username} уничтожен`
+          msg: `Профиль игрока ${name} уничтожен`
         });
       })
       .catch(err => {
         console.log(err);
         resolve({
           id: telegramId,
-          msg: `Произошла ошибка. ${msg.from.username} попробуйте еще раз.`
+          msg: `Произошла ошибка. ${name} попробуйте еще раз.`
         });
       })
   );
@@ -87,7 +87,7 @@ function checkForExistingUser(msg) {
 }
 
 function handleUserAnswer(user, msg) {
-  const { userId, telegramId } = parseMsg(msg);
+  const { telegramId } = parseMsg(msg);
   return new Promise((resolve, reject) => {
     if (user.status === "end") {
       resolve({
@@ -156,21 +156,22 @@ function handleUserAnswer(user, msg) {
 }
 
 function startQuiz(msg) {
-  const { telegramId, userId, username, firstName, lastName } = parseMsg(msg);
+  const { telegramId, userId, username, name, fio } = parseMsg(msg);
   console.log("start");
   return new Promise((resolve, reject) => {
     const newUser = generateUser({
       telegramId: telegramId,
       id: userId,
-      username: username,
-      fio: `${lastName} ${firstName}`
+      username,
+      fio,
+      name
     });
 
     return createUser(newUser)
       .then(_ => {
         resolve({
           id: telegramId,
-          msg: `Приветствую, ${username}! Вы добавлены в список анкетирующихся. Через некоторое время вы получите вопрос.`
+          msg: `Приветствую, ${name}! Вы добавлены в список игроков. Через некоторое время вы получите вопрос.`
         });
       })
       .catch(err => {
