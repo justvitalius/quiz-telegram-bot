@@ -202,7 +202,8 @@ function getQuestinnairesForWaitingGamers() {
           getQuestionnaireForGamer(gamer, questionnaires, categories)
         )
       );
-    });
+    })
+    .then(removeEmptyMessages);
 }
 
 function getQuestionnaireForGamer(gamer, questionnaires, categories) {
@@ -216,4 +217,8 @@ function getQuestionnaireForGamer(gamer, questionnaires, categories) {
   return updateUser(payload.gamer)
     .then(_ => Promise.resolve(payload.message))
     .catch(err => Promise.reject(err));
+}
+
+function removeEmptyMessages(messages) {
+  return messages.filter(m => !!m);
 }

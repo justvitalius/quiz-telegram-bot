@@ -5,7 +5,11 @@ jest.mock("../messages/helpers");
 const R = require("ramda");
 const faker = require("faker");
 const { gamer } = require("../../../test-helpers/gamer");
-const { WITH_QUESTIONS_STATUS, WAIT_QUESTION_STATUS } = require("../user");
+const {
+  WITH_QUESTIONS_STATUS,
+  WAIT_QUESTION_STATUS,
+  FINISH_STATUS
+} = require("../user");
 const { questionnaire } = require("../../../test-helpers/questionnaires");
 const {
   processUserEndStatus,
@@ -112,7 +116,8 @@ describe("Пайпы для обработки пользователя по р�
           );
 
           expect(pipe(userProfile)).not.toEqual(expectedPayload);
-          expect(pipe(userProfile).message.msg).not.toBeNull();
+          expect(pipe(userProfile).message).toBeNull();
+          expect(pipe(userProfile).gamer.status).toEqual(FINISH_STATUS);
         });
       });
     });
