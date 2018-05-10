@@ -2,8 +2,23 @@ const TelegramBot = require("node-telegram-bot-api");
 const config = require("config");
 const { isTestAvailableByTime } = require("./game/dateutils");
 const TOKEN = config.get("telegramBotToken");
+const url = config.get("url");
+const bot_server = config.get("bot_server");
+const { port, key, cert } = bot_server;
 
-const bot = new TelegramBot(TOKEN, { polling: true });
+const options = {
+  webHook: {
+    port,
+    key,
+    cert
+  }
+};
+
+// const bot = new TelegramBot(TOKEN, { polling: true });
+const bot = new TelegramBot(TOKEN, options);
+bot.setWebHook(`${url}/bot${TOKEN}`, {
+  certificate: options.webHook.cert
+});
 
 const logger = require("./logger");
 
@@ -82,6 +97,10 @@ bot.on("callback_query", callbackQuery => {
 });
 
 bot.on("polling_error", err => logger.error(err));
+bot.on("webhook_error", error => {
+  console.log(error.code); // => 'EPARSE'
+});
+
 
 queue.addCallback(sendMessageFromQueue);
 
