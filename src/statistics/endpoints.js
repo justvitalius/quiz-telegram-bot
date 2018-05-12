@@ -11,7 +11,6 @@ module.exports = function(app) {
     getAllCategories().then(categories => res.send(categories));
   });
 
-  //TODO implement
   app.route("/gamers").get((req, res) => {
     getAllUsers().then(users => res.send(users));
   });
