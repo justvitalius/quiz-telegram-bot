@@ -1,6 +1,7 @@
 const R = require("ramda");
 const { makeGamerAnswer } = require("../user/answers");
 const { getQuestion } = require("../questionnaires");
+const logger = require("../logger");
 
 const {
   updateUser,
@@ -46,14 +47,14 @@ function destroyUserProfile(msg) {
   return new Promise(resolve =>
     deleteUser(userId)
       .then(_ => {
-        console.log("User was deleted, id=", userId);
+        logger.info("User was deleted, id=", telegramId);
         resolve({
           id: telegramId,
           msg: `Профиль игрока ${name} уничтожен`
         });
       })
       .catch(err => {
-        console.log(err);
+        logger.error(err);
         resolve({
           id: telegramId,
           msg: `Произошла ошибка. ${name} попробуйте еще раз.`
@@ -77,7 +78,7 @@ function checkForExistingUser(msg) {
         return resolve(user[0]);
       })
       .catch(err => {
-        console.log(err);
+        logger.error(err);
         return reject({
           id: telegramId,
           msg: "Произошла ошибка при поиске пользователя"
@@ -97,7 +98,7 @@ function handleUserAnswer(user, msg) {
       });
     }
     if (user.status === "with-question") {
-      console.log("Answer was ", msg.text);
+      logger.info("Gamer", telegramId, "answered: ", msg);
       setNextStatus(user);
       const answer = msg.text;
       const questionId = answer.match(/(\w+)--/)[1];
@@ -129,7 +130,7 @@ function handleUserAnswer(user, msg) {
                   });
                 })
                 .catch(err => {
-                  console.log(err);
+                  logger.info(err);
                   reject({
                     id: telegramId,
                     msg: "Произошла ошибка на этапе выдачи вопросов"
@@ -137,7 +138,7 @@ function handleUserAnswer(user, msg) {
                 });
             })
             .catch(err => {
-              console.log(err);
+              logger.error(err);
               reject({
                 id: telegramId,
                 msg: "Произошла ошибка на этапе выдачи вопросов"
@@ -145,7 +146,7 @@ function handleUserAnswer(user, msg) {
             });
         })
         .catch(err => {
-          console.log(err);
+          logger.error(err);
           reject({
             id: telegramId,
             msg: "Произошла ошибка на этапе обработки ответа"
@@ -157,7 +158,7 @@ function handleUserAnswer(user, msg) {
 
 function startQuiz(msg) {
   const { telegramId, userId, username, name, fio } = parseMsg(msg);
-  console.log("start");
+  logger.info("start");
   return new Promise((resolve, reject) => {
     const newUser = generateUser({
       telegramId: telegramId,
@@ -175,7 +176,7 @@ function startQuiz(msg) {
         });
       })
       .catch(err => {
-        console.log(err);
+        logger.error("msg %s \nerror %s", msg, err);
         reject({
           id: telegramId,
           msg:

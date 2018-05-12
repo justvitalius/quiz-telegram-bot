@@ -4,9 +4,14 @@ const TOKEN = config.get("telegramBotToken");
 
 const bot = new TelegramBot(TOKEN, { polling: true });
 
+const logger = require("./logger");
 const http = require("http");
+
 http
-  .createServer((req, res) => res.end("ok"))
+  .createServer((req, res) => {
+    logger.info("server started");
+    res.end("ok");
+  })
   .listen(config.get("bot_server.port"));
 
 const { renderQuestion } = require("./messages");
@@ -22,11 +27,15 @@ const {
 
 initQuestions();
 
+logger.error("error");
+
 bot.onText(/\/clear/, msg => {
+  logger.info("command /clear %s", msg);
   destroyUserProfile(msg).then(({ id, msg }) => bot.sendMessage(id, msg));
 });
 
 bot.onText(/\/start/, msg => {
+  logger.info("command /start %s", msg);
   checkForExistingUser(msg)
     .catch(_ => startQuiz(msg))
     .then(({ id, msg }) => bot.sendMessage(id, msg))
@@ -58,7 +67,7 @@ setInterval(() => {
         });
       })
     )
-    .catch(console.log);
+    .catch(logger.error);
 }, 2000);
 
 bot.on("callback_query", callbackQuery => {
@@ -66,7 +75,7 @@ bot.on("callback_query", callbackQuery => {
   const msg = callbackQuery.message;
   msg.text = callbackQuery.data;
   msg.from = callbackQuery.from;
-  console.log(msg);
+  logger.info("Callback", msg);
 
   checkForExistingUser(msg)
     .then(user => handleUserAnswer(user, msg))
@@ -75,6 +84,4 @@ bot.on("callback_query", callbackQuery => {
     .catch(console.log);
 });
 
-bot.on("polling_error", error => {
-  console.log(error); // => 'EFATAL'
-});
+bot.on("polling_error", logger.error);
