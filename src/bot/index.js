@@ -1,39 +1,14 @@
 const TelegramBot = require("node-telegram-bot-api");
 const config = require("config");
 const TOKEN = config.get("telegramBotToken");
-const url = config.get("url");
-const bot_server = config.get("bot_server");
-const { port, key, cert } = bot_server;
 
-const options = {
-  webHook: {
-    port,
-    key,
-    cert
-  }
-};
+const bot = new TelegramBot(TOKEN, { polling: true });
 
-//TODO сделать разделени конфигураций на основе текущего профиля, а не закоменченным кодом
-//Для локального старта использовать ngrok и конфигурацию без сертификатов
-/*
-const options = {
-  webHook: {
-    port
-  }
-};
-*/
+const http = require("http");
+http
+  .createServer((req, res) => res.end("ok"))
+  .listen(config.get("bot_server.port"));
 
-const bot = new TelegramBot(TOKEN, options);
-
-bot.setWebHook(`${url}/bot${TOKEN}`, {
-  certificate: options.webHook.cert
-});
-
-//TODO сделать разделени конфигураций на основе текущего профиля, а не закоменченным кодом
-//Для локального старта использовать ngrok и конфигурацию без сертификатов
-//bot.setWebHook(`${url}/bot${TOKEN}`);
-
-const getQuestion = require("./questionnaires/index");
 const { renderQuestion } = require("./messages");
 const { initQuestions } = require("../database");
 
@@ -97,6 +72,6 @@ bot.on("callback_query", callbackQuery => {
     .catch(console.log);
 });
 
-bot.on("webhook_error", error => {
-  console.log(error.code); // => 'EPARSE'
+bot.on("polling_error", error => {
+  console.log(error); // => 'EFATAL'
 });
