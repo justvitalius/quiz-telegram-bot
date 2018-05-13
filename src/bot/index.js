@@ -27,20 +27,17 @@ bot.onText(/\/clear/, msg => {
 });
 
 bot.onText(/\/start/, msg => {
-  checkForExistingUser(msg)
-    .catch(_ => startQuiz(msg))
+  checkForExistingUser(msg, true)
     .then(({ id, msg }) => bot.sendMessage(id, msg))
-    .catch(({ id, msg }) => bot.sendMessage(id, msg));
+    .catch((response = {}) => {
+      if (response.id && response.msg) {
+        bot.sendMessage(response.id, response.msg);
+      }
+      startQuiz(msg)
+        .then(({ id, msg }) => bot.sendMessage(id, msg))
+        .catch(({ id, msg }) => bot.sendMessage(id, msg));
+    });
 });
-
-// TODO: Вместо этого используется on callback_query
-// bot.onText(/\w+/, msg => {
-//   console.log("Income message", msg);
-//   checkForExistingUser(msg)
-//     .then(user => handleUserAnswer(user, msg))
-//     .then(({ id, msg }) => bot.sendMessage(id, msg))
-//     .catch(({ id, msg }) => bot.sendMessage(id, msg));
-// });
 
 setInterval(() => {
   processWaitingUsers()
@@ -68,7 +65,7 @@ bot.on("callback_query", callbackQuery => {
   msg.from = callbackQuery.from;
   console.log(msg);
 
-  checkForExistingUser(msg)
+  checkForExistingUser(msg, false)
     .then(user => handleUserAnswer(user, msg))
     .then(({ id, msg }) => bot.sendMessage(id, msg))
     .catch(({ id, msg }) => bot.sendMessage(id, msg))
