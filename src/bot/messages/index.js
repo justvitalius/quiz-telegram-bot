@@ -1,6 +1,7 @@
 module.exports = {
   renderQuestion,
-  generateOpts
+  generateOpts,
+  renderHelp
 };
 
 function renderQuestion(question) {
@@ -32,4 +33,21 @@ function optsWithReplyKeyboard(replies) {
       inline_keyboard: keyboard
     }
   };
+}
+
+function renderHelp() {
+  return `
+<b>Справка</b>
+
+Добро пожаловать в telegram опросник от Сбербанк Технологии.
+
+Бот будет присылать вопросы по фронтенду и смежным javascript технологиям. Ваша задача - выбрать один правильный вариант ответа. Любое написанное боту сообщение игнорируется (кроме команд ниже).
+
+Более подробную информацию о призах и правилах проведения можно узнать у hr на стойке Сбербанк Технологии.
+
+<b>Команды бота:</b>
+/start - принять участие в анкетировании
+/help - справка
+/clear - начать тестирование заново (сбросит все ответы) 
+  `;
 }
