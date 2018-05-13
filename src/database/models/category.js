@@ -4,6 +4,7 @@ module.exports = mongoose.model(
   "Category",
   new mongoose.Schema({
     title: String,
-    numberOfRequiredAnswers: Number
+    numberOfRequiredAnswers: Number,
+    hash: String
   })
 );

@@ -4,14 +4,9 @@ const stdio = require("stdio");
 const mongoose = require("mongoose");
 const config = require("config");
 
-const { save, find, remove } = require("../database/dao/index");
+const { save, find } = require("../database/dao/index");
 const Question = require("../database/models/question");
 const Category = require("../database/models/category");
-const {
-  getAllCategories,
-  createCategory,
-  deleteCategory
-} = require("../database");
 
 const CONN = config.get("mongo.host");
 const DB_NAME = config.get("mongo.dbName");
@@ -39,13 +34,8 @@ if (ops.filename) {
 
       if (ops.force) {
         console.log("\nActivated --force mode. Will remove all Questions");
-        Question.remove({}, err => {
-          if (err) {
-            console.log(err);
-          } else {
-            console.log("Done.\n");
-          }
-        });
+        clear(Question, "Questions removed\n");
+        clear(Category, "Categories removed\n");
       }
 
       find(Question)
@@ -85,18 +75,30 @@ if (ops.filename) {
               const categories = mapCategories(fileData);
               if (categories.length) {
                 console.log(`Start migrate ${categories.length} categories.\n`);
-                Category.remove().exec();
                 return Promise.all(
-                  categories.map(category =>
-                    createCategory({
+                  categories.map(category => {
+                    const c = new Category({
                       title: category,
                       numberOfRequiredAnswers: Math.floor(
                         calcByCategory(category) / 3
-                      )
-                    }).then(cat =>
-                      console.log(`Category ${cat.title} imported`)
-                    )
-                  )
+                      ),
+                      hash: hash(category)
+                    });
+                    return find(Category, { hash: c.hash })
+                      .then(results => {
+                        if (!results || !results.length) {
+                          return save(c)
+                            .then(_ =>
+                              console.log(`Category ${c.hash} imported`)
+                            )
+                            .catch(err => console.log(`${c.hash} ${err}`));
+                        } else {
+                          console.log(`${c.hash} already exists`);
+                          return Promise.resolve();
+                        }
+                      })
+                      .catch(err => console.log(`${q.hash} ${err}`));
+                  })
                 ).catch(Promise.reject);
               }
             })
@@ -134,4 +136,14 @@ function mapCategories(fileData = []) {
 
 function countOfQuestionsByCategory(questionnaires) {
   return category => questionnaires.filter(q => q.c === category).length;
+}
+
+function clear(model, message) {
+  model.remove({}, err => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(message);
+    }
+  });
 }
