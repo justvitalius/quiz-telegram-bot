@@ -16,28 +16,37 @@ http
 
 const { renderQuestion } = require("./messages");
 const { initQuestions } = require("../database");
+const { renderHelp } = require("./messages");
+const { parseMsg } = require("./messages/parsers");
 
 const {
   destroyUserProfile,
   handleUserAnswer,
   checkForExistingUser,
   startQuiz,
-  processWaitingUsers
+  processWaitingUsers,
+  clearUserProfile,
+  handleAlreadyExistsGamer
 } = require("./game/actions");
 
 initQuestions();
 
-logger.error("error");
-
 bot.onText(/\/clear/, msg => {
   logger.info("command /clear %s", msg);
-  destroyUserProfile(msg).then(({ id, msg }) => bot.sendMessage(id, msg));
+  clearUserProfile(msg).then(({ id, msg }) => bot.sendMessage(id, msg));
 });
 
-bot.onText(/\/start/, msg => {
-  logger.info("command /start %s", msg);
-  checkForExistingUser(msg)
-    .catch(_ => startQuiz(msg))
+bot.onText(/\/help/, msg => {
+  logger.info("command /help %s", msg);
+  const { telegramId } = parseMsg(msg);
+  bot.sendMessage(telegramId, renderHelp(), { parse_mode: "HTML" });
+});
+
+bot.onText(/\/start/, incomeMsg => {
+  logger.info("command /start %s", incomeMsg);
+  checkForExistingUser(incomeMsg)
+    .catch(_ => startQuiz(incomeMsg))
+    .then(handleAlreadyExistsGamer(parseMsg(incomeMsg)))
     .then(({ id, msg }) => bot.sendMessage(id, msg))
     .catch(({ id, msg }) => bot.sendMessage(id, msg));
 });
@@ -66,7 +75,7 @@ bot.on("callback_query", callbackQuery => {
   const msg = callbackQuery.message;
   msg.text = callbackQuery.data;
   msg.from = callbackQuery.from;
-  logger.info("Callback", msg);
+  logger.info("Callback %s", msg);
 
   checkForExistingUser(msg)
     .then(user => handleUserAnswer(user, msg))

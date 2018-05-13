@@ -9,6 +9,7 @@ module.exports = {
   setNextStatus,
   getNextStatus,
   filterWaitingUsers,
+  clearUser,
   NEW_STATUS,
   WITH_QUESTIONS_STATUS,
   WAIT_QUESTION_STATUS,
@@ -31,6 +32,13 @@ function generateUser(options = {}) {
     },
     options
   );
+}
+
+function clearUser(user = {}) {
+  return Object.assign(user, {
+    answers: [],
+    status: NEW_STATUS
+  });
 }
 
 function setNextStatus(gamer = {}) {

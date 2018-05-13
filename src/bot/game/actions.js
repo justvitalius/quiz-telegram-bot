@@ -16,7 +16,12 @@ const {
 
 const Question = require("../../database/models/question");
 
-const { generateUser, filterWaitingUsers, setNextStatus } = require("../user");
+const {
+  generateUser,
+  filterWaitingUsers,
+  setNextStatus,
+  clearUser
+} = require("../user");
 const compareAnswer = require("../compare-answer");
 
 const { parseMsg } = require("../messages/parsers");
@@ -39,7 +44,9 @@ module.exports = {
   processUserEndStatus,
   processUserNewStatus,
   processNoQuestionnaireForGamer,
-  processHasQuestionnaireForGamer
+  processHasQuestionnaireForGamer,
+  clearUserProfile,
+  handleAlreadyExistsGamer
 };
 
 function destroyUserProfile(msg) {
@@ -59,6 +66,36 @@ function destroyUserProfile(msg) {
         resolve({
           id: telegramId,
           msg: `Произошла ошибка. ${name} попробуйте еще раз.`
+        });
+      })
+  );
+}
+
+function clearUserProfile(msg) {
+  const { telegramId } = parseMsg(msg);
+
+  return new Promise((resolve, reject) =>
+    getUserById(telegramId)
+      .then(user => {
+        if (!user || !user.length) {
+          reject();
+        }
+        const clearedUser = clearUser(user[0]);
+        return updateUser(clearedUser)
+          .then(
+            resolve({
+              id: telegramId,
+              msg:
+                "История ваших ответов очищена. Тестирование начнется сначала. Ждите вопрос"
+            })
+          )
+          .catch(reject);
+      })
+      .catch(err => {
+        console.log(err);
+        return reject({
+          id: telegramId,
+          msg: `Произошла ошибка при поиске вашего профиля.\nПожалуйста, очистите профиль /clear.\nИ после этого анкетирование перезапустится автоматически.`
         });
       })
   );
@@ -99,7 +136,7 @@ function handleUserAnswer(user, msg) {
       });
     }
     if (user.status === "with-question") {
-      logger.info("Gamer", telegramId, "answered: ", msg);
+      logger.info("Gamer %s, answer: %s", telegramId, msg);
       setNextStatus(user);
       const answer = msg.text;
       const questionId = answer.match(/(\w+)--/)[1];
@@ -159,7 +196,6 @@ function handleUserAnswer(user, msg) {
 
 function startQuiz(msg) {
   const { telegramId, userId, username, name, fio } = parseMsg(msg);
-  logger.info("start");
   return new Promise((resolve, reject) => {
     const newUser = generateUser({
       telegramId: telegramId,
@@ -235,4 +271,12 @@ function decorateMessagesOpts(messages = []) {
       })
     )
   );
+}
+
+function handleAlreadyExistsGamer({ name, telegramId }) {
+  return () =>
+    Promise.resolve({
+      id: telegramId,
+      msg: `${name} с вашим профилем что-то не так.\nПожалуйста, сбросьте историю ответов через /clear.\nИ опрос перезапустится автоматически.`
+    });
 }
