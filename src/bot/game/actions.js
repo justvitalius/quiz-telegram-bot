@@ -40,6 +40,12 @@ module.exports = {
   processHasQuestionnaireForGamer
 };
 
+const {
+  WAIT_QUESTION_STATUS,
+  WITH_QUESTIONS_STATUS,
+  FINISH_STATUS
+} = require("../user");
+
 function destroyUserProfile(msg) {
   const { userId, telegramId, name } = parseMsg(msg);
 
@@ -62,16 +68,40 @@ function destroyUserProfile(msg) {
   );
 }
 
-function checkForExistingUser(msg) {
+function checkForExistingUser(msg, isStartCommand) {
   const { userId, telegramId } = parseMsg(msg);
   return new Promise((resolve, reject) =>
     getUserById(userId)
       .then(user => {
         if (!user || !user.length) {
-          reject({
+          return reject();
+        }
+        if (isStartCommand) {
+          console.log("1");
+          const { status } = user[0];
+          let msg;
+          switch (status) {
+            case WAIT_QUESTION_STATUS:
+              msg =
+                "Вы уже стартовали, пожалуйста, дождитесь вопроса. Вы не можете повторно стартовать тест";
+              break;
+            case WITH_QUESTIONS_STATUS:
+              msg =
+                "Вы стартовали и уже получили вопрос, ответьте сначала на него. Вы не можете повторно стартовать тест";
+              break;
+            case FINISH_STATUS:
+              msg =
+                "Вы ответили на все вопросы, больше вопросы к вам не придут. Вы не можете повторно стартовать тест";
+              break;
+            default:
+              msg = "Бот уже запущен";
+              break;
+          }
+          console.log("2");
+          console.log(msg);
+          return resolve({
             id: telegramId,
-            msg:
-              "Вы не найдены в базе анкетирования. Отравьте /start, чтобы я включил вас в список."
+            msg
           });
         }
         return resolve(user[0]);
@@ -89,14 +119,7 @@ function checkForExistingUser(msg) {
 function handleUserAnswer(user, msg) {
   const { telegramId } = parseMsg(msg);
   return new Promise((resolve, reject) => {
-    if (user.status === "end") {
-      resolve({
-        id: telegramId,
-        msg:
-          "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
-      });
-    }
-    if (user.status === "with-question") {
+    if (user.status === WITH_QUESTIONS_STATUS) {
       console.log("Answer was ", msg.text);
       setNextStatus(user);
       const answer = msg.text;
