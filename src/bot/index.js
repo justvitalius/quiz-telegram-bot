@@ -5,33 +5,33 @@ const url = config.get("url");
 const bot_server = config.get("bot_server");
 const { port, key, cert } = bot_server;
 
-/*const options = {
+const options = {
   webHook: {
     port,
     key,
     cert
   }
-};*/
+};
 
 //TODO сделать разделени конфигураций на основе текущего профиля, а не закоменченным кодом
 //Для локального старта использовать ngrok и конфигурацию без сертификатов
+/*
 const options = {
   webHook: {
     port
   }
 };
+*/
 
 const bot = new TelegramBot(TOKEN, options);
 
-/*
 bot.setWebHook(`${url}/bot${TOKEN}`, {
   certificate: options.webHook.cert
 });
-*/
 
 //TODO сделать разделени конфигураций на основе текущего профиля, а не закоменченным кодом
 //Для локального старта использовать ngrok и конфигурацию без сертификатов
-bot.setWebHook(`${url}/bot${TOKEN}`);
+//bot.setWebHook(`${url}/bot${TOKEN}`);
 
 const getQuestion = require("./questionnaires/index");
 const { renderQuestion } = require("./messages");
