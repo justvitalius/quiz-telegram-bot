@@ -16,7 +16,10 @@ function processNoQuestionnaireForGamer(questionnaire = {}) {
     const { gamer = {} } = payload;
     if (!questionnaire) {
       return Object.assign(payload, {
-        message: null,
+        message: {
+          id: gamer.telegramId,
+          msg: `Вы успешно ответили на все вопросы. Поздравляем!`
+        },
         gamer: Object.assign(gamer, {
           status: FINISH_STATUS
         })

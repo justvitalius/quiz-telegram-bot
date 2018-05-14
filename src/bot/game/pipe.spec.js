@@ -116,7 +116,9 @@ describe("Пайпы для обработки пользователя по р�
           );
 
           expect(pipe(userProfile)).not.toEqual(expectedPayload);
-          expect(pipe(userProfile).message).toBeNull();
+          expect(pipe(userProfile).message).not.toBeNull();
+          expect(pipe(userProfile).message.msg).not.toBeNull();
+          expect(pipe(userProfile).message.telegramId).not.toBeNull();
           expect(pipe(userProfile).gamer.status).toEqual(FINISH_STATUS);
         });
       });
