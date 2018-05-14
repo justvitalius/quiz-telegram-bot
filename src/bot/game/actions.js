@@ -19,6 +19,7 @@ const { generateUser, filterWaitingUsers, setNextStatus } = require("../user");
 const compareAnswer = require("../compare-answer");
 
 const { parseMsg } = require("../messages/parsers");
+const { generateOpts } = require("../messages");
 
 const {
   processNoQuestionnaireForGamer,
@@ -125,7 +126,7 @@ function handleUserAnswer(user, msg) {
                 .then(_ => {
                   resolve({
                     id: telegramId,
-                    msg: `Спасибо...ждите следующий вопрос!`
+                    msg: `Спасибо, ответ принят.\nЖдите обновлений!`
                   });
                 })
                 .catch(err => {
@@ -204,7 +205,8 @@ function getQuestinnairesForWaitingGamers() {
         )
       );
     })
-    .then(removeEmptyMessages);
+    .then(removeEmptyMessages)
+    .then(decorateMessagesOpts);
 }
 
 function getQuestionnaireForGamer(gamer, questionnaires, categories) {
@@ -222,4 +224,14 @@ function getQuestionnaireForGamer(gamer, questionnaires, categories) {
 
 function removeEmptyMessages(messages) {
   return messages.filter(m => !!m);
+}
+
+function decorateMessagesOpts(messages = []) {
+  return Promise.resolve(
+    messages.map(m =>
+      Object.assign(m, {
+        opts: generateOpts(m)
+      })
+    )
+  );
 }
