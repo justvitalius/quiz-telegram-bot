@@ -93,6 +93,15 @@ function deleteCategory(id) {
   return remove(Category, { id });
 }
 
+function createOrUpdateCategory(data) {
+  return find(Category, { title: data.title }).then(category => {
+    if (category && category.length) {
+      return Object.assign(category[0], data).save();
+    }
+    return createCategory(data);
+  });
+}
+
 module.exports = {
   initQuestions,
   connect,
@@ -105,5 +114,6 @@ module.exports = {
   getUserById,
   getAllCategories,
   createCategory,
-  deleteCategory
+  deleteCategory,
+  createOrUpdateCategory
 };

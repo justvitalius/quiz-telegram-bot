@@ -9,7 +9,7 @@ const Question = require("../database/models/question");
 const Category = require("../database/models/category");
 const {
   getAllCategories,
-  createCategory,
+  createOrUpdateCategory,
   deleteCategory
 } = require("../database");
 
@@ -38,12 +38,22 @@ if (ops.filename) {
       console.log(`Connected to ${CONN}${DB_NAME}`);
 
       if (ops.force) {
-        console.log("\nActivated --force mode. Will remove all Questions");
+        console.log(
+          "\nActivated --force mode. Will remove all Questions and Categories"
+        );
         Question.remove({}, err => {
           if (err) {
             console.log(err);
           } else {
-            console.log("Done.\n");
+            console.log("Questionnaires removed successful.\n");
+          }
+        });
+
+        Category.remove({}, err => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log("Categories removed successful.\n");
           }
         });
       }
@@ -85,10 +95,10 @@ if (ops.filename) {
               const categories = mapCategories(fileData);
               if (categories.length) {
                 console.log(`Start migrate ${categories.length} categories.\n`);
-                Category.remove().exec();
+
                 return Promise.all(
                   categories.map(category =>
-                    createCategory({
+                    createOrUpdateCategory({
                       title: category,
                       numberOfRequiredAnswers: Math.floor(
                         calcByCategory(category) / 3
