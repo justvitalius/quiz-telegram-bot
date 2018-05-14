@@ -5,8 +5,9 @@ module.exports = {
 };
 
 function renderQuestion(question) {
+  const result = question.replace(/</gm, "&lt;").replace(/>/, "&gt;");
   return `
-<pre>${question}</pre>\n
+<pre>${result}</pre>\n
   `;
 }
 
