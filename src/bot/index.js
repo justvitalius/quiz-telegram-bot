@@ -65,7 +65,7 @@ setInterval(() => {
   processWaitingUsers()
     .then(messages =>
       messages.map(({ id, msg, opts }) => {
-        bot.sendMessage(id, renderQuestion(msg), opts);
+        bot.sendMessage(id, msg, opts);
       })
     )
     .catch(logger.error);

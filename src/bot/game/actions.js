@@ -25,7 +25,7 @@ const {
 const compareAnswer = require("../compare-answer");
 
 const { parseMsg } = require("../messages/parsers");
-const { generateOpts } = require("../messages");
+const { generateOpts, generateMessage } = require("../messages");
 
 const {
   processNoQuestionnaireForGamer,
@@ -262,13 +262,7 @@ function removeEmptyMessages(messages) {
 }
 
 function decorateMessagesOpts(messages = []) {
-  return Promise.resolve(
-    messages.map(m =>
-      Object.assign(m, {
-        opts: generateOpts(m)
-      })
-    )
-  );
+  return Promise.resolve(messages.map(generateMessage));
 }
 
 function handleAlreadyExistsGamer({ name, telegramId }) {
