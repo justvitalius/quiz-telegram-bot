@@ -1,6 +1,7 @@
 const R = require("ramda");
 const { makeGamerAnswer, alreadyAnswered } = require("../user/answers");
 const { getQuestion } = require("../questionnaires");
+const { WITH_QUESTIONS_STATUS, FINISH_STATUS } = require("../user");
 const logger = require("../logger");
 
 const {
@@ -47,7 +48,8 @@ module.exports = {
   processHasQuestionnaireForGamer,
   clearUserProfile,
   handleAlreadyExistsGamer,
-  stopEmptyMessage
+  stopEmptyMessage,
+  handleStartForAlreadyExistsGamer
 };
 
 function destroyUserProfile(msg) {
@@ -271,6 +273,37 @@ function handleAlreadyExistsGamer({ name, telegramId }) {
       id: telegramId,
       msg: `${name} с вашим профилем что-то не так.\nПожалуйста, сбросьте историю ответов через /clear.\nИ опрос перезапустится автоматически.`
     });
+}
+
+function handleStartForAlreadyExistsGamer(gamer) {
+  if (gamer.status === WITH_QUESTIONS_STATUS) {
+    logger.info("handleStartForAlreadyExistsGamer: %s", gamer);
+    const notAnswered = gamer.answers.filter(a => !a.answered);
+    const lastAnswer = notAnswered[notAnswered.length - 1];
+    const questionnaireId = lastAnswer.questionnaireId;
+    logger.info(
+      "with answer: %s and questionnaireId: %s",
+      lastAnswer,
+      questionnaireId
+    );
+    return Question.findById(questionnaireId)
+      .then(questionnaire => {
+        const processGamer = R.compose(
+          processHasQuestionnaireForGamer(questionnaire),
+          generatePayload
+        );
+        return Promise.resolve(generateMessage(processGamer(gamer).message));
+      })
+      .catch(logger.error);
+  }
+
+  if (gamer.status === FINISH_STATUS) {
+    const processGamer = R.compose(
+      processNoQuestionnaireForGamer(null),
+      generatePayload
+    );
+    return Promise.resolve(generateMessage(processGamer(gamer).message));
+  }
 }
 
 function stopEmptyMessage(message = {}) {

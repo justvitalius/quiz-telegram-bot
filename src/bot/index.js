@@ -27,6 +27,7 @@ const {
   processWaitingUsers,
   clearUserProfile,
   handleAlreadyExistsGamer,
+  handleStartForAlreadyExistsGamer,
   stopEmptyMessage
 } = require("./game/actions");
 
@@ -46,10 +47,14 @@ bot.onText(/\/help/, msg => {
 bot.onText(/\/start/, incomeMsg => {
   logger.info("command /start %s", incomeMsg);
   checkForExistingUser(incomeMsg)
+    .then(handleStartForAlreadyExistsGamer)
     .catch(_ => startQuiz(incomeMsg))
-    .then(handleAlreadyExistsGamer(parseMsg(incomeMsg)))
-    .then(({ id, msg }) => bot.sendMessage(id, msg))
-    .catch(({ id, msg }) => bot.sendMessage(id, msg));
+    .then(({ id, msg, opts }) => {
+      bot.sendMessage(id, msg, opts);
+    })
+    .catch(({ id, msg }) => {
+      bot.sendMessage(id, msg);
+    });
 });
 
 // TODO: Вместо этого используется on callback_query
