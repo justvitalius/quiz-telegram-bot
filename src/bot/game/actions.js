@@ -1,5 +1,5 @@
 const R = require("ramda");
-const { makeGamerAnswer } = require("../user/answers");
+const { makeGamerAnswer, alreadyAnswered } = require("../user/answers");
 const { getQuestion } = require("../questionnaires");
 const logger = require("../logger");
 
@@ -46,7 +46,8 @@ module.exports = {
   processNoQuestionnaireForGamer,
   processHasQuestionnaireForGamer,
   clearUserProfile,
-  handleAlreadyExistsGamer
+  handleAlreadyExistsGamer,
+  stopEmptyMessage
 };
 
 function destroyUserProfile(msg) {
@@ -128,20 +129,17 @@ function checkForExistingUser(msg) {
 function handleUserAnswer(user, msg) {
   const { telegramId } = parseMsg(msg);
   return new Promise((resolve, reject) => {
-    if (user.status === "end") {
-      resolve({
-        id: telegramId,
-        msg:
-          "Вы ответили на все вопросы, больше вопросы к вам не придут. Чтобы начать сначала, отправьте /clear"
-      });
+    const answer = msg.text;
+    const questionId = answer.match(/(\w+)--/)[1];
+    const answerIndex = answer.match(/--(\d+)/)[1];
+
+    if (alreadyAnswered(user, questionId)) {
+      return resolve();
     }
+
     if (user.status === "with-question") {
       logger.info("Gamer %s, answer: %s", telegramId, msg);
       setNextStatus(user);
-      const answer = msg.text;
-      const questionId = answer.match(/(\w+)--/)[1];
-      const answerIndex = answer.match(/--(\d+)/)[1];
-
       const checkedQuestionId = R.compose(
         R.find(R.equals(questionId)),
         R.map(R.toString),
@@ -279,4 +277,12 @@ function handleAlreadyExistsGamer({ name, telegramId }) {
       id: telegramId,
       msg: `${name} с вашим профилем что-то не так.\nПожалуйста, сбросьте историю ответов через /clear.\nИ опрос перезапустится автоматически.`
     });
+}
+
+function stopEmptyMessage(message = {}) {
+  if (message.id && message.msg) {
+    return message;
+  }
+  logger.info("Gamer twice answer on questionnaire");
+  throw new Error("Gamer twice answer on questionnaire");
 }
