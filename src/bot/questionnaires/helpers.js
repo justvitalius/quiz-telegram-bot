@@ -17,7 +17,7 @@ function getQuestionnairesByCategory(questionnaires = [], category = "") {
 
 function getRandomQuestionnaire(questionnaires = []) {
   return questionnaires[
-    Math.floor(Math.random() * (questionnaires.length - 1))
+    Math.floor(Math.random() * questionnaires.length)
   ];
 }
 
