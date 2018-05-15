@@ -11,7 +11,8 @@ const userSchema = new mongoose.Schema({
       isCorrect: Boolean,
       value: String,
       answeredAt: Date,
-      answered: Boolean
+      answered: Boolean,
+      category: String
     }
   ],
   status: String
