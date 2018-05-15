@@ -1,4 +1,4 @@
-const { getAllUsers } = require("../database");
+const { getAllUsers, getAllCategories } = require("../database");
 
 module.exports = function(app) {
   app.all("/*", function(req, res, next) {
@@ -9,7 +9,7 @@ module.exports = function(app) {
 
   //TODO implement
   app.route("/categories").get((req, res) => {
-    res.send([{}]);
+    getAllCategories().then(categories => res.send(categories));
   });
 
   //TODO implement
