@@ -26,7 +26,8 @@ const {
   startQuiz,
   processWaitingUsers,
   clearUserProfile,
-  handleAlreadyExistsGamer
+  handleAlreadyExistsGamer,
+  stopEmptyMessage
 } = require("./game/actions");
 
 initQuestions();
@@ -79,9 +80,10 @@ bot.on("callback_query", callbackQuery => {
 
   checkForExistingUser(msg)
     .then(user => handleUserAnswer(user, msg))
+    .then(stopEmptyMessage)
+    .catch(logger.error)
     .then(({ id, msg }) => bot.sendMessage(id, msg))
-    .catch(({ id, msg }) => bot.sendMessage(id, msg))
-    .catch(console.log);
+    .catch(({ id, msg }) => bot.sendMessage(id, msg));
 });
 
 bot.on("polling_error", logger.error);
