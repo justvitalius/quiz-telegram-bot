@@ -1,3 +1,4 @@
+const { isTestAvailableByTime } = require("./dateutils");
 const R = require("ramda");
 const { makeGamerAnswer } = require("../user/answers");
 const { getQuestion } = require("../questionnaires");
@@ -34,6 +35,10 @@ const {
   processUserNewStatus,
   generatePayload
 } = require("./pipes");
+
+const { countCorrectAnswers } = require("./helpers");
+const config = require("config");
+const SIMPLE_PRIZE_SCORE = config.get("bot.simple_prize_score");
 
 module.exports = {
   destroyUserProfile,
@@ -162,10 +167,27 @@ function handleUserAnswer(user, msg) {
             .then(_ => {
               updateUser(user)
                 .then(_ => {
-                  resolve({
-                    id: telegramId,
-                    msg: `Спасибо, ответ принят.\nЖдите обновлений!`
-                  });
+                  const { answers = [] } = user;
+                  //Чтобы не вычитывать пользователя из БД и т.к. в user.answers на данном этапе хранится на один вопрос
+                  //меньше, чем реально отвечено, а ответ на последний вопрос находится в newAnswer в isCorrect, то добавляем доп. проверку
+                  const score =
+                    countCorrectAnswers(answers) + (isCorrect ? 1 : 0);
+                  let scoreMsg = "";
+                  if (score == SIMPLE_PRIZE_SCORE) {
+                    scoreMsg +=
+                      "Вы набрали бал, достаточный для получения подарка. Теперь вы можете обратиться к сотрудникам Сбербанк-Технологии на стенде. Продолжайте играть и Вы сможете получить еще более крутые призы!";
+                  }
+                  if (isTestAvailableByTime()) {
+                    resolve({
+                      id: telegramId,
+                      msg: `Спасибо! Ответ принят, пожалуйста, подождите следующий вопрос. ${scoreMsg}`
+                    });
+                  } else {
+                    resolve({
+                      id: telegramId,
+                      msg: `Спасибо! Ответ принят, к сожалению, сегодня регламентное время работы бота в рамках конференции истекло. ${scoreMsg}`
+                    });
+                  }
                 })
                 .catch(err => {
                   logger.info(err);
@@ -277,6 +299,6 @@ function handleAlreadyExistsGamer({ name, telegramId }) {
   return () =>
     Promise.resolve({
       id: telegramId,
-      msg: `${name} с вашим профилем что-то не так.\nПожалуйста, сбросьте историю ответов через /clear.\nИ опрос перезапустится автоматически.`
+      msg: `${name} ваш профиль в системе тестирования уже содержит информацию об ответах.\nПожалуйста, сбросьте историю ответов через /clear.\nПосле этого опрос перезапустится автоматически.`
     });
 }

@@ -5,7 +5,9 @@ module.exports = {
     dbName: "quiz_db"
   },
   bot: {
-    logDest: `${process.cwd()}/logs/bot`
+    logDest: `${process.cwd()}/logs/bot`,
+    simple_prize_score: 10,
+    lottery_score: 20
   },
   bot_server: {
     logDest: `${process.cwd()}/logs/server`,
