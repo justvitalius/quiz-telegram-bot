@@ -48,7 +48,6 @@ module.exports = {
   processNoQuestionnaireForGamer,
   processHasQuestionnaireForGamer,
   clearUserProfile,
-  handleAlreadyExistsGamer,
   stopEmptyMessage,
   handleStartForAlreadyExistsGamer
 };
@@ -273,14 +272,6 @@ function removeEmptyMessages(messages) {
 
 function decorateMessagesOpts(messages = []) {
   return Promise.resolve(messages.map(generateMessage));
-}
-
-function handleAlreadyExistsGamer({ name, telegramId }) {
-  return () =>
-    Promise.resolve({
-      id: telegramId,
-      msg: `${name} с вашим профилем что-то не так.\nПожалуйста, сбросьте историю ответов через /clear.\nИ опрос перезапустится автоматически.`
-    });
 }
 
 function handleStartForAlreadyExistsGamer(gamer) {

@@ -9,19 +9,16 @@ const logger = require("./logger");
 
 require("./server").start(bot);
 
-const { renderQuestion } = require("./messages");
 const { initQuestions } = require("../database");
 const { renderHelp } = require("./messages");
 const { parseMsg } = require("./messages/parsers");
 
 const {
-  destroyUserProfile,
   handleUserAnswer,
   checkForExistingUser,
   startQuiz,
   processWaitingUsers,
   clearUserProfile,
-  handleAlreadyExistsGamer,
   handleStartForAlreadyExistsGamer,
   stopEmptyMessage
 } = require("./game/actions");
@@ -45,7 +42,6 @@ bot.onText(/\/start/, incomeMsg => {
     checkForExistingUser(incomeMsg)
       .then(handleStartForAlreadyExistsGamer)
       .catch(_ => startQuiz(incomeMsg))
-      .then(handleAlreadyExistsGamer(parseMsg(incomeMsg)))
       .then(({ id, msg, opts }) => sendMessage(id, msg, opts))
       .catch(({ id, msg }) => sendMessage(id, msg));
   } else {
