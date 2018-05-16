@@ -6,8 +6,8 @@ module.exports = {
   },
   bot: {
     logDest: `${process.cwd()}/logs/bot`,
-    openTime: "09:00",
-    closeTime: "19:00"
+    openTime: "00:00",
+    closeTime: "23:59"
   },
   bot_server: {
     logDest: `${process.cwd()}/logs/server`,
