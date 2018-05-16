@@ -52,7 +52,7 @@ bot.onText(/\/start/, incomeMsg => {
       .then(({ id, msg }) => bot.sendMessage(id, msg))
       .catch(({ id, msg }) => bot.sendMessage(id, msg));
   } else {
-    const { chat: { id } } = msg;
+    const { chat: { id } } = incomeMsg;
     bot.sendMessage(id, "Извините, в данное время работа бота невозможна");
   }
 });
