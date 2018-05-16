@@ -3,7 +3,7 @@ const { generateMessage, MAX_BUTTON_TEXT_SIZE } = require("./index");
 describe("generateMessage()", () => {
   const ID = 1;
   const MSG = "msg";
-  const HTML_MSG = `<pre>${MSG}</pre>`;
+  const HTML_MSG = `<code>${MSG}</code>`;
   const REPLIES = [
     { id: 1, value: "replyFirst" },
     { id: 2, value: "replySecond" }
