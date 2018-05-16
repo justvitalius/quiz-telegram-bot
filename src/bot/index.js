@@ -6,14 +6,8 @@ const TOKEN = config.get("telegramBotToken");
 const bot = new TelegramBot(TOKEN, { polling: true });
 
 const logger = require("./logger");
-const http = require("http");
 
-http
-  .createServer((req, res) => {
-    logger.info("server started");
-    res.end("ok");
-  })
-  .listen(config.get("bot_server.port"));
+require("./server").start(bot);
 
 const { renderQuestion } = require("./messages");
 const { initQuestions } = require("../database");
@@ -36,13 +30,13 @@ initQuestions();
 
 bot.onText(/\/clear/, msg => {
   logger.info("command /clear %s", msg);
-  clearUserProfile(msg).then(({ id, msg }) => bot.sendMessage(id, msg));
+  clearUserProfile(msg).then(({ id, msg }) => sendMessage(id, msg));
 });
 
 bot.onText(/\/help/, msg => {
   logger.info("command /help %s", msg);
   const { telegramId } = parseMsg(msg);
-  bot.sendMessage(telegramId, renderHelp(), { parse_mode: "HTML" });
+  sendMessage(telegramId, renderHelp(), { parse_mode: "HTML" });
 });
 
 bot.onText(/\/start/, incomeMsg => {
@@ -52,11 +46,11 @@ bot.onText(/\/start/, incomeMsg => {
       .then(handleStartForAlreadyExistsGamer)
       .catch(_ => startQuiz(incomeMsg))
       .then(handleAlreadyExistsGamer(parseMsg(incomeMsg)))
-      .then(({ id, msg, opts }) => bot.sendMessage(id, msg, opts))
-      .catch(({ id, msg }) => bot.sendMessage(id, msg));
+      .then(({ id, msg, opts }) => sendMessage(id, msg, opts))
+      .catch(({ id, msg }) => sendMessage(id, msg));
   } else {
     const { chat: { id } } = incomeMsg;
-    bot.sendMessage(id, "Извините, в данное время работа бота невозможна");
+    sendMessage(id, "Извините, в данное время работа бота невозможна");
   }
 });
 
@@ -65,7 +59,7 @@ setInterval(() => {
     processWaitingUsers()
       .then(messages =>
         messages.map(({ id, msg, opts }) => {
-          bot.sendMessage(id, msg, opts);
+          sendMessage(id, msg, opts);
         })
       )
       .catch(logger.error);
@@ -83,8 +77,17 @@ bot.on("callback_query", callbackQuery => {
     .then(user => handleUserAnswer(user, msg))
     .then(stopEmptyMessage)
     .catch(logger.error)
-    .then(({ id, msg }) => bot.sendMessage(id, msg))
-    .catch(({ id, msg }) => bot.sendMessage(id, msg));
+    .then(({ id, msg }) => sendMessage(id, msg))
+    .catch(({ id, msg }) => sendMessage(id, msg));
 });
 
-bot.on("polling_error", logger.error);
+bot.on("polling_error", err => logger.error(err));
+
+function sendMessage(id, msg, opts) {
+  return bot
+    .sendMessage(id, msg, opts)
+    .then(_ => logger.info("Success send to gamer=%s, msg=%s", id, msg))
+    .catch(err => {
+      logger.error("Error with send to gamer=%s, msg=%s. \n%s", id, msg, err);
+    });
+}
