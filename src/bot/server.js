@@ -37,6 +37,10 @@ function start(bot) {
             revokeFinish();
           }
 
+          if (req.url === "/clearAnswers") {
+            clearAnswers(data);
+          }
+
           res.writeHead(200, { "Content-Type": "application/json" });
           res.end(body);
         });
@@ -99,4 +103,32 @@ function revokeFinish() {
       )
     )
     .catch(err => logger.error("Failed revoke finish status\n%s", err));
+}
+
+function clearAnswers({ all = false }) {
+  logger.info("Will clear all answers for all gamers");
+  if (all) {
+    return getAllUsers()
+      .then(users =>
+        Promise.all(
+          users.map(user => {
+            user.status = WAIT_QUESTION_STATUS;
+            user.answers = [];
+            return updateUser(user)
+              .then(_ =>
+                logger.info(
+                  "Change gamer=%s to status=%s, answers=%s",
+                  user.telegramId,
+                  user.status,
+                  user.answers
+                )
+              )
+              .catch(err =>
+                logger.info("Failed change gamer=%s\n%s", user.telegramId, err)
+              );
+          })
+        )
+      )
+      .catch(err => logger.error("Failed clear answers\n%s", err));
+  }
 }
