@@ -9,9 +9,7 @@ module.exports = {
 
 function renderQuestion(question) {
   const result = question.replace(/</gm, "&lt;").replace(/>/, "&gt;");
-  return `
-<pre>${result}</pre>\n
-  `;
+  return `<code>${result}</code>`;
 }
 
 function renderMessage(question) {
@@ -21,10 +19,9 @@ function renderMessage(question) {
 function renderQuestionWithAnswers(question, answers) {
   const renderedAnswers = answers
     .map(item => item.replace(/</gm, "&lt;").replace(/>/, "&gt;"))
-    .map((item, i) => `<b>${i + 1}</b> ${item}`)
+    .map((item, i) => `<b>(${i + 1})</b>   ${item}`)
     .join("\n");
-  return `
-${renderQuestion(question)}  
+  return `${renderQuestion(question)}  
 ${renderedAnswers}
   `;
 }
@@ -73,7 +70,7 @@ function generateMessage({ id, msg, replies = [] }) {
   if (needsAnswerInQuestion) {
     repliesForKeyboard = replies.map((item, i) => ({
       id: item.id,
-      value: (i + 1).toString()
+      value: `(${(i + 1).toString()})`
     }));
     question = renderQuestionWithAnswers(
       msg,
