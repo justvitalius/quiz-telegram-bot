@@ -10,7 +10,7 @@ function makeGamerAnswer(questionnaire = {}, value, isCorrect) {
   return {
     questionnaireId: (questionnaire._id || "").toString(),
     category: questionnaire.category,
-    answeredAt: answered && new Date(),
+    answeredAt: answered ? new Date() : null,
     answered,
     value,
     isCorrect

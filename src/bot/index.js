@@ -58,7 +58,7 @@ setInterval(() => {
           sendMessage(id, msg, opts);
         })
       )
-      .catch(logger.error);
+      .catch(err => logger.error(err));
   }
 }, 2000);
 
