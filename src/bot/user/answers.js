@@ -6,11 +6,12 @@ module.exports = {
 };
 
 function makeGamerAnswer(questionnaire = {}, value, isCorrect) {
+  const answered = value != undefined && isCorrect != undefined;
   return {
     questionnaireId: (questionnaire._id || "").toString(),
     category: questionnaire.category,
-    answeredAt: new Date(),
-    answered: value != undefined && isCorrect != undefined,
+    answeredAt: answered && new Date(),
+    answered,
     value,
     isCorrect
   };

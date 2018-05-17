@@ -160,12 +160,19 @@ function handleUserAnswer(user, msg) {
             answerIndex,
             isCorrect
           );
+          logger.info(
+            "Gamer %s, isCorrect=%s, newAnswer=%s",
+            telegramId,
+            isCorrect,
+            newAnswer
+          );
           // Так как не обновляется значение объекта в массиве, приходится делать это отдельно
           // Далее пользователь обновляется для изменения статуса
           updateUserAnswer(newAnswer)
             .then(_ => {
               updateUser(user)
-                .then(_ => {
+                .then(updatedUser => {
+                  logger.info("Gamer %s updated to %s", updatedUser);
                   const { answers = [] } = user;
                   //Чтобы не вычитывать пользователя из БД и т.к. в user.answers на данном этапе хранится на один вопрос
                   //меньше, чем реально отвечено, а ответ на последний вопрос находится в newAnswer в isCorrect, то добавляем доп. проверку
