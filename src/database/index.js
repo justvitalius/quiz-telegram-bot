@@ -64,10 +64,10 @@ function updateUser(user) {
 }
 
 // @param принимает объект результата makeGamerAnswer
-function updateUserAnswer(newAnswer) {
+function updateUserAnswer(userId, newAnswer) {
   return updateArrayValue(
     User,
-    { "answers.questionnaireId": newAnswer.questionnaireId },
+    { "answers.questionnaireId": newAnswer.questionnaireId, _id: userId },
     {
       "answers.$.isCorrect": newAnswer.isCorrect,
       "answers.$.value": newAnswer.value,

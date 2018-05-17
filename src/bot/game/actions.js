@@ -168,7 +168,7 @@ function handleUserAnswer(user, msg) {
           );
           // Так как не обновляется значение объекта в массиве, приходится делать это отдельно
           // Далее пользователь обновляется для изменения статуса
-          updateUserAnswer(newAnswer)
+          updateUserAnswer(user._id, newAnswer)
             .then(_ => {
               updateUser(user)
                 .then(updatedUser => {
