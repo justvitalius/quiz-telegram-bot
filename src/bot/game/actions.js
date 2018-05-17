@@ -172,7 +172,11 @@ function handleUserAnswer(user, msg) {
             .then(_ => {
               updateUser(user)
                 .then(updatedUser => {
-                  logger.info("Gamer %s updated to %s", updatedUser);
+                  logger.info(
+                    "Gamer %s updated to %s",
+                    telegramId,
+                    updatedUser
+                  );
                   const { answers = [] } = user;
                   //Чтобы не вычитывать пользователя из БД и т.к. в user.answers на данном этапе хранится на один вопрос
                   //меньше, чем реально отвечено, а ответ на последний вопрос находится в newAnswer в isCorrect, то добавляем доп. проверку
