@@ -10,23 +10,10 @@ const Category = require("./models/category");
 
 const { save, find, remove, updateArrayValue } = require("./dao/index");
 
-const questionnaires = require("./questionnaires");
-
 function initQuestions() {
   connect()
     .then(() => {
       console.log("Successfully connected");
-      find(Question)
-        .then(results => {
-          if (!results || !results.length) {
-            console.log("Database is empty. Insert data in database...");
-            init();
-            console.log("Database initialization compeleted");
-          } else {
-            console.log("Database contains questions");
-          }
-        })
-        .catch(err => console.log(err));
     })
     .catch(err => {
       throw err;
@@ -35,12 +22,6 @@ function initQuestions() {
 
 function connect() {
   return mongoose.connect(`${CONN}${DB_NAME}`);
-}
-
-function init() {
-  questionnaires.map(questionnaire => {
-    save(new Question(questionnaire));
-  });
 }
 
 function getAllQuestionnaires() {
