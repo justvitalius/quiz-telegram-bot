@@ -46,7 +46,10 @@ bot.onText(/\/start/, incomeMsg => {
       .catch(({ id, msg }) => sendMessage(id, msg));
   } else {
     const { chat: { id } } = incomeMsg;
-    sendMessage(id, "Извините, в данное время работа бота невозможна");
+    sendMessage(
+      id,
+      "Извините, сейчас бот недоступен. Время работы бота совпадает со временем проведения конференции."
+    );
   }
 });
 
