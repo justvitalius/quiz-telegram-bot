@@ -1,3 +1,4 @@
+const { isTestAvailableByTime } = require("./dateutils");
 const R = require("ramda");
 const { makeGamerAnswer, alreadyAnswered } = require("../user/answers");
 const { getQuestion } = require("../questionnaires");
@@ -162,10 +163,17 @@ function handleUserAnswer(user, msg) {
             .then(_ => {
               updateUser(user)
                 .then(_ => {
-                  resolve({
-                    id: telegramId,
-                    msg: `Спасибо, ответ принят.\nЖдите обновлений!`
-                  });
+                  if (isTestAvailableByTime()) {
+                    resolve({
+                      id: telegramId,
+                      msg: `Спасибо! Ответ принят, пожалуйста, подождите следующий вопрос`
+                    });
+                  } else {
+                    resolve({
+                      id: telegramId,
+                      msg: `Спасибо! Ответ принят, к сожалению, сегодня регламентное время работы бота в рамках конференции истекло`
+                    });
+                  }
                 })
                 .catch(err => {
                   logger.info(err);
