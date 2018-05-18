@@ -183,7 +183,7 @@ function handleUserAnswer(user, msg) {
                   const score =
                     countCorrectAnswers(answers) + (isCorrect ? 1 : 0);
                   let scoreMsg = "";
-                  if (score == SIMPLE_PRIZE_SCORE) {
+                  if (score == SIMPLE_PRIZE_SCORE && isCorrect) {
                     scoreMsg +=
                       "\n\nВы набрали бал, достаточный для получения первого подарка. Теперь вы можете обратиться к сотрудникам Сбертеха на стенде.\nПродолжайте играть и вы сможете получить еще более крутые призы!";
                   }
