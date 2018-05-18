@@ -3,6 +3,10 @@ const R = require("ramda");
 const { WITH_QUESTIONS_STATUS, FINISH_STATUS } = require("../user");
 const { makeGamerAnswer } = require("../user/answers");
 
+const { countCorrectAnswers } = require("./helpers");
+const config = require("config");
+const LOTTERY_SCORE = config.get("bot.lottery_score");
+
 module.exports = {
   processNoQuestionnaireForGamer,
   processHasQuestionnaireForGamer,
@@ -15,10 +19,17 @@ function processNoQuestionnaireForGamer(questionnaire = {}) {
   return payload => {
     const { gamer = {} } = payload;
     if (!questionnaire) {
+      const { answers = [] } = gamer;
+      const score = countCorrectAnswers(answers);
+      let scoreMsg = `Ваш итоговый бал ${score}. `;
+      if (score >= LOTTERY_SCORE) {
+        scoreMsg +=
+          "Вы набрали бал, достаточный для участия в розыгрыше суперпризов. Теперь вы можете обратиться к сотрудникам Сбербанк-Технологии на стенде для получения информации об условиях розыгрыша призов";
+      }
       return Object.assign(payload, {
         message: {
           id: gamer.telegramId,
-          msg: `Вы успешно ответили на все вопросы. Поздравляем!`
+          msg: `Вы успешно ответили на все вопросы. Поздравляем! ${scoreMsg}`
         },
         gamer: Object.assign(gamer, {
           status: FINISH_STATUS
