@@ -1,5 +1,6 @@
 const TelegramBot = require("node-telegram-bot-api");
 const config = require("config");
+const { isTestAvailableByTime } = require("./game/dateutils");
 const TOKEN = config.get("telegramBotToken");
 
 const bot = new TelegramBot(TOKEN, { polling: true });
@@ -43,31 +44,29 @@ bot.onText(/\/help/, msg => {
 });
 
 bot.onText(/\/start/, incomeMsg => {
-  logger.info("command /start %s", incomeMsg);
-  checkForExistingUser(incomeMsg)
-    .catch(_ => startQuiz(incomeMsg))
-    .then(handleAlreadyExistsGamer(parseMsg(incomeMsg)))
-    .then(({ id, msg }) => bot.sendMessage(id, msg))
-    .catch(({ id, msg }) => bot.sendMessage(id, msg));
+  if (isTestAvailableByTime()) {
+    logger.info("command /start %s", incomeMsg);
+    checkForExistingUser(incomeMsg)
+      .catch(_ => startQuiz(incomeMsg))
+      .then(handleAlreadyExistsGamer(parseMsg(incomeMsg)))
+      .then(({ id, msg }) => bot.sendMessage(id, msg))
+      .catch(({ id, msg }) => bot.sendMessage(id, msg));
+  } else {
+    const { chat: { id } } = msg;
+    bot.sendMessage(id, "Извините, в данное время работа бота невозможна");
+  }
 });
 
-// TODO: Вместо этого используется on callback_query
-// bot.onText(/\w+/, msg => {
-//   console.log("Income message", msg);
-//   checkForExistingUser(msg)
-//     .then(user => handleUserAnswer(user, msg))
-//     .then(({ id, msg }) => bot.sendMessage(id, msg))
-//     .catch(({ id, msg }) => bot.sendMessage(id, msg));
-// });
-
 setInterval(() => {
-  processWaitingUsers()
-    .then(messages =>
-      messages.map(({ id, msg, opts }) => {
-        bot.sendMessage(id, renderQuestion(msg), opts);
-      })
-    )
-    .catch(logger.error);
+  if (isTestAvailableByTime()) {
+    processWaitingUsers()
+      .then(messages =>
+        messages.map(({ id, msg, opts }) => {
+          bot.sendMessage(id, renderQuestion(msg), opts);
+        })
+      )
+      .catch(logger.error);
+  }
 }, 2000);
 
 bot.on("callback_query", callbackQuery => {
