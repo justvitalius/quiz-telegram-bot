@@ -4,7 +4,7 @@ const querystring = require("querystring");
 const logger = require("../logger")(config.get("bot_server.logDest"));
 
 const { getAllUsers, updateUser } = require("../database");
-const { WAIT_QUESTION_STATUS } = require("./user");
+const { WAIT_QUESTION_STATUS, WITH_QUESTIONS_STATUS } = require("./user");
 
 module.exports = {
   start
@@ -90,18 +90,25 @@ function revokeFinish() {
     .then(users =>
       Promise.all(
         users.map(user => {
-          user.status = WAIT_QUESTION_STATUS;
-          return updateUser(user)
-            .then(_ =>
-              logger.info(
-                "Change gamer=%s to status=%s",
-                user.telegramId,
-                user.status
+          if (user.status != WITH_QUESTIONS_STATUS) {
+            user.status = WAIT_QUESTION_STATUS;
+            return updateUser(user)
+              .then(_ =>
+                logger.info(
+                  "Change gamer=%s to status=%s",
+                  user.telegramId,
+                  user.status
+                )
               )
-            )
-            .catch(err =>
-              logger.info("Failed change gamer=%s\n%s", user.telegramId, err)
-            );
+              .catch(err =>
+                logger.info("Failed change gamer=%s\n%s", user.telegramId, err)
+              );
+          }
+          logger.info(
+            "Not change gamer=%s because of his status is %s",
+            user.telegramId,
+            user.status
+          );
         })
       )
     )
