@@ -1,3 +1,5 @@
+const logger = require("../logger");
+
 module.exports = class Queue {
   constructor(maxBatch, interval) {
     this.messages = new Set();
@@ -9,6 +11,7 @@ module.exports = class Queue {
   }
 
   addMessage(msg) {
+    logger.info("Add message to queue %s", msg);
     this.messages.add(msg);
   }
 
@@ -41,7 +44,13 @@ module.exports = class Queue {
   }
 
   handleTick() {
-    this.getMessagesBatch().map(message => {
+    const batchMessages = this.getMessagesBatch();
+    logger.info(
+      "Tick the queue, messages count=%s, batch size=%s",
+      this.messages.size,
+      batchMessages.length
+    );
+    batchMessages.map(message => {
       this.callbacks.forEach(callback => callback(message));
       this.messages.delete(message);
     });

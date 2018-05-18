@@ -10,7 +10,7 @@ module.exports = {
   start
 };
 
-function start(bot) {
+function start(callback) {
   return http
     .createServer((req, res) => {
       logger.info("server started");
@@ -30,7 +30,7 @@ function start(bot) {
           logger.info("Body %s", data);
 
           if (req.url === "/sendMessage") {
-            sendMessage(data, bot);
+            sendMessage(data, callback);
           }
 
           if (req.url === "/revokeFinish") {
@@ -54,28 +54,31 @@ function start(bot) {
 	"msg": "<b>Hello</b> man"
 }
  */
-function sendMessage({ all = false, msg = "" }, bot) {
+function sendMessage({ all = false, msg = "" }, callback) {
   logger.info("Will send message to all gamers");
   if (all && msg) {
     getAllUsers()
-      .then(users =>
-        users.map(user => {
-          bot
-            .sendMessage(user.telegramId, msg, { parse_mode: "html" })
-            .then(_ =>
-              logger.info(
-                "Successful send message to gamer=%s",
-                user.telegramId
-              )
-            )
-            .catch(err =>
-              logger.error(
-                "Failed send message to gamer=%s\n%s",
-                user.telegramId,
-                err
-              )
-            );
-        })
+      .then(
+        users =>
+          users.map(user =>
+            callback(user.telegramId, msg, { parse_mode: "html" })
+          )
+        // Code without queues;
+        // bot
+        //   .sendMessage(user.telegramId, msg, { parse_mode: "html" })
+        //   .then(_ =>
+        //     logger.info(
+        //       "Successful send message to gamer=%s",
+        //       user.telegramId
+        //     )
+        //   )
+        //   .catch(err =>
+        //     logger.error(
+        //       "Failed send message to gamer=%s\n%s",
+        //       user.telegramId,
+        //       err
+        //     )
+        //   );
       )
       .catch(err => logger.error(err));
   }

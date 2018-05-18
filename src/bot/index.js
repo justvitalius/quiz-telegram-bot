@@ -7,7 +7,8 @@ const bot = new TelegramBot(TOKEN, { polling: true });
 
 const logger = require("./logger");
 
-require("./server").start(bot);
+const Queue = require("./queue");
+const queue = new Queue(20, 1000);
 
 const { initQuestions } = require("../database");
 const { renderHelp } = require("./messages");
@@ -76,13 +77,15 @@ bot.on("callback_query", callbackQuery => {
     .then(user => handleUserAnswer(user, msg))
     .then(stopEmptyMessage)
     .catch(logger.error)
-    .then(({ id, msg }) => sendMessage(id, msg))
+    .then(message => sendMessageFromQueue(message))
     .catch(({ id, msg }) => sendMessage(id, msg));
 });
 
 bot.on("polling_error", err => logger.error(err));
 
-function sendMessage(id, msg, opts) {
+queue.addCallback(sendMessageFromQueue);
+
+function sendMessageFromQueue({ id, msg, opts }) {
   return bot
     .sendMessage(id, msg, opts)
     .then(_ => logger.info("Success send to gamer=%s, msg=%s", id, msg))
@@ -90,3 +93,14 @@ function sendMessage(id, msg, opts) {
       logger.error("Error with send to gamer=%s, msg=%s. \n%s", id, msg, err);
     });
 }
+
+function sendMessage(id, msg, opts) {
+  queue.addMessage({
+    id,
+    msg,
+    opts
+  });
+}
+
+require("./server").start(sendMessage);
+queue.start();
