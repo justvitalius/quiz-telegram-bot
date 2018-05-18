@@ -24,7 +24,7 @@ module.exports = logDest => {
       }),
       new transports.File({
         filename: path.resolve(logDest, "warning.log"),
-        level: "warning"
+        level: "warn"
       }),
       new transports.File({
         filename: path.resolve(logDest, "info.log"),
