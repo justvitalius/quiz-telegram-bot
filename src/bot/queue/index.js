@@ -45,7 +45,7 @@ module.exports = class Queue {
 
   handleTick() {
     const batchMessages = this.getMessagesBatch();
-    logger.info(
+    logger.warn(
       "Tick the queue, messages count=%s, batch size=%s",
       this.messages.size,
       batchMessages.length

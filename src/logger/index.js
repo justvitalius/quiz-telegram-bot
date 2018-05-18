@@ -14,7 +14,7 @@ const myFormat = printf(info => {
 });
 
 module.exports = logDest => {
-  console.warn(`Logger configured to ${logDest} destination`);
+  console.info(`Logger configured to ${logDest} destination`);
   return createLogger({
     format: combine(timestamp(), myFormat),
     transports: [
