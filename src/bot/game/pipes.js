@@ -21,7 +21,7 @@ function processNoQuestionnaireForGamer(questionnaire = {}) {
     if (!questionnaire) {
       const { answers = [] } = gamer;
       const score = countCorrectAnswers(answers);
-      let scoreMsg = `Ваш итоговый бал ${score}. `;
+      let scoreMsg = `Ваш итоговый балл ${score}. `;
       if (score >= LOTTERY_SCORE) {
         scoreMsg +=
           "И набрали балл, достаточный для участия в розыгрыше суперпризов. Теперь вы можете обратиться к сотрудникам Сбербанк-Технологии на стенде для получения информации об условиях розыгрыша призов";
