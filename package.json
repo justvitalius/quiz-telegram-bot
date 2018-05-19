@@ -21,7 +21,10 @@
     "bot:production":
       "pm2 start ecosystem.config.js --only bot-app --env production",
     "api:production":
-      "pm2 start ecosystem.config.js --only api-app --env production"
+      "pm2 start ecosystem.config.js --only api-app --env production",
+    "barchart:development": "node src/statistics/calculate_statistics",
+    "barchart:production":
+      "NODE_ENV=production node src/statistics/calculate_statistics"
   },
   "repository": {
     "type": "git",
@@ -48,6 +51,7 @@
     "faker": "^4.1.0",
     "husky": "^0.14.3",
     "jest": "^22.4.2",
+    "mathjs": "^4.2.2",
     "nodemon": "^1.17.2",
     "object-hash": "^1.3.0",
     "pm2": "^2.10.2",
